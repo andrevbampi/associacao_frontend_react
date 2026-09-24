@@ -1,0 +1,20 @@
+.alert {
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  border: 1px solid transparent;
+}
+
+.alert-error {
+  background: #fdecea;
+  border-color: #f5c2be;
+  color: #8a2c22;
+}
+
+.alert-info {
+  background: var(--color-primary-bg);
+  border-color: var(--color-primary-light);
+  color: var(--color-primary-dark);
+}
