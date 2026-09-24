@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { useToast } from "../../context/ToastContext";
 import "./Layout.css";
 
 const LINKS = [
@@ -12,6 +14,13 @@ const LINKS = [
 
 export function Layout() {
   const [menuAberto, setMenuAberto] = useState(false);
+  const { usuario, logout } = useAuth();
+  const { showToast } = useToast();
+
+  function handleLogout() {
+    logout();
+    showToast("info", "Sessão encerrada.");
+  }
 
   return (
     <div className="layout">
@@ -48,6 +57,19 @@ export function Layout() {
               </li>
             ))}
           </ul>
+
+          <div className="sidebar-rodape">
+            <div className="sidebar-usuario">
+              <span className="sidebar-usuario-icone">👤</span>
+              <div>
+                <div className="sidebar-usuario-nome">{usuario?.pessoa?.nome ?? usuario?.login}</div>
+                <div className="sidebar-usuario-login">@{usuario?.login}</div>
+              </div>
+            </div>
+            <button type="button" className="sidebar-sair" onClick={handleLogout}>
+              ⏻ Sair
+            </button>
+          </div>
         </nav>
 
         {menuAberto && <div className="sidebar-overlay" onClick={() => setMenuAberto(false)} />}
