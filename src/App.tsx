@@ -1,5 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import { Layout } from "./components/layout/Layout";
+import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import { LoginPage } from "./pages/LoginPage";
 import { Dashboard } from "./pages/Dashboard";
 import { PessoaListPage } from "./pages/pessoa/PessoaListPage";
 import { PessoaFormPage } from "./pages/pessoa/PessoaFormPage";
@@ -14,26 +16,30 @@ import { NotFoundPage } from "./pages/NotFoundPage";
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Layout />}>
-        <Route index element={<Dashboard />} />
+      <Route path="/login" element={<LoginPage />} />
 
-        <Route path="pessoas" element={<PessoaListPage />} />
-        <Route path="pessoas/nova" element={<PessoaFormPage />} />
-        <Route path="pessoas/:id/editar" element={<PessoaFormPage />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Dashboard />} />
 
-        <Route path="usuarios" element={<UsuarioListPage />} />
-        <Route path="usuarios/novo" element={<UsuarioFormPage />} />
-        <Route path="usuarios/:id/editar" element={<UsuarioFormPage />} />
+          <Route path="pessoas" element={<PessoaListPage />} />
+          <Route path="pessoas/nova" element={<PessoaFormPage />} />
+          <Route path="pessoas/:id/editar" element={<PessoaFormPage />} />
 
-        <Route path="membros" element={<MembroListPage />} />
-        <Route path="membros/novo" element={<MembroFormPage />} />
-        <Route path="membros/:id/editar" element={<MembroFormPage />} />
+          <Route path="usuarios" element={<UsuarioListPage />} />
+          <Route path="usuarios/novo" element={<UsuarioFormPage />} />
+          <Route path="usuarios/:id/editar" element={<UsuarioFormPage />} />
 
-        <Route path="status-membro" element={<StatusMembroListPage />} />
-        <Route path="status-membro/novo" element={<StatusMembroFormPage />} />
-        <Route path="status-membro/:id/editar" element={<StatusMembroFormPage />} />
+          <Route path="membros" element={<MembroListPage />} />
+          <Route path="membros/novo" element={<MembroFormPage />} />
+          <Route path="membros/:id/editar" element={<MembroFormPage />} />
 
-        <Route path="*" element={<NotFoundPage />} />
+          <Route path="status-membro" element={<StatusMembroListPage />} />
+          <Route path="status-membro/novo" element={<StatusMembroFormPage />} />
+          <Route path="status-membro/:id/editar" element={<StatusMembroFormPage />} />
+
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
       </Route>
     </Routes>
   );
