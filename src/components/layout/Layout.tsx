@@ -6,10 +6,16 @@ import "./Layout.css";
 
 const LINKS = [
   { to: "/", label: "Início", fim: true, icone: "🏠" },
+  { to: "/comandas", label: "Comandas", icone: "🧾" },
+];
+
+const LINKS_CADASTROS = [
   { to: "/pessoas", label: "Pessoas", icone: "👤" },
   { to: "/usuarios", label: "Usuários", icone: "🔑" },
   { to: "/membros", label: "Membros", icone: "🪪" },
   { to: "/status-membro", label: "Status de Membro", icone: "🏷️" },
+  { to: "/tipos-evento", label: "Tipos de Evento", icone: "📌" },
+  { to: "/produtos", label: "Produtos", icone: "🛒" },
 ];
 
 export function Layout() {
@@ -48,6 +54,20 @@ export function Layout() {
                 <NavLink
                   to={link.to}
                   end={link.fim}
+                  className={({ isActive }) => `sidebar-link ${isActive ? "sidebar-link-ativo" : ""}`}
+                  onClick={() => setMenuAberto(false)}
+                >
+                  <span className="sidebar-link-icone">{link.icone}</span>
+                  {link.label}
+                </NavLink>
+              </li>
+            ))}
+
+            <li className="sidebar-secao">Cadastros</li>
+            {LINKS_CADASTROS.map((link) => (
+              <li key={link.to}>
+                <NavLink
+                  to={link.to}
                   className={({ isActive }) => `sidebar-link ${isActive ? "sidebar-link-ativo" : ""}`}
                   onClick={() => setMenuAberto(false)}
                 >

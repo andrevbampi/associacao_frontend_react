@@ -9,8 +9,16 @@ import { UsuarioListPage } from "./pages/usuario/UsuarioListPage";
 import { UsuarioFormPage } from "./pages/usuario/UsuarioFormPage";
 import { MembroListPage } from "./pages/membro/MembroListPage";
 import { MembroFormPage } from "./pages/membro/MembroFormPage";
+import { MembroDetailPage } from "./pages/membro/MembroDetailPage";
 import { StatusMembroListPage } from "./pages/statusMembro/StatusMembroListPage";
 import { StatusMembroFormPage } from "./pages/statusMembro/StatusMembroFormPage";
+import { TipoEventoListPage } from "./pages/tipoEvento/TipoEventoListPage";
+import { TipoEventoFormPage } from "./pages/tipoEvento/TipoEventoFormPage";
+import { ProdutoListPage } from "./pages/produto/ProdutoListPage";
+import { ProdutoFormPage } from "./pages/produto/ProdutoFormPage";
+import { ComandaListPage } from "./pages/comanda/ComandaListPage";
+import { ComandaAbrirPage } from "./pages/comanda/ComandaAbrirPage";
+import { ComandaDetailPage } from "./pages/comanda/ComandaDetailPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 
 function App() {
@@ -32,11 +40,24 @@ function App() {
 
           <Route path="membros" element={<MembroListPage />} />
           <Route path="membros/novo" element={<MembroFormPage />} />
+          <Route path="membros/:id" element={<MembroDetailPage />} />
           <Route path="membros/:id/editar" element={<MembroFormPage />} />
 
           <Route path="status-membro" element={<StatusMembroListPage />} />
           <Route path="status-membro/novo" element={<StatusMembroFormPage />} />
           <Route path="status-membro/:id/editar" element={<StatusMembroFormPage />} />
+
+          <Route path="tipos-evento" element={<TipoEventoListPage />} />
+          <Route path="tipos-evento/novo" element={<TipoEventoFormPage />} />
+          <Route path="tipos-evento/:id/editar" element={<TipoEventoFormPage />} />
+
+          <Route path="produtos" element={<ProdutoListPage />} />
+          <Route path="produtos/novo" element={<ProdutoFormPage />} />
+          <Route path="produtos/:id/editar" element={<ProdutoFormPage />} />
+
+          <Route path="comandas" element={<ComandaListPage />} />
+          <Route path="comandas/nova" element={<ComandaAbrirPage />} />
+          <Route path="comandas/:id" element={<ComandaDetailPage />} />
 
           <Route path="*" element={<NotFoundPage />} />
         </Route>

@@ -5,25 +5,24 @@ import { Loading } from "../../components/common/Loading";
 import { Alert } from "../../components/common/Alert";
 import { DataTable } from "../../components/common/DataTable";
 import { ConfirmDialog } from "../../components/common/ConfirmDialog";
-import { membroService } from "../../services/membroService";
+import { tipoEventoService } from "../../services/tipoEventoService";
 import { extrairMensagemErro } from "../../services/api";
 import { useToast } from "../../context/ToastContext";
-import type { MembroResponse } from "../../types/membro";
-import { formatarData } from "../../utils/formatters";
+import type { TipoEvento } from "../../types/tipoEvento";
 
-export function MembroListPage() {
+export function TipoEventoListPage() {
   const { showToast } = useToast();
-  const [membros, setMembros] = useState<MembroResponse[]>([]);
+  const [tipos, setTipos] = useState<TipoEvento[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
-  const [paraExcluir, setParaExcluir] = useState<MembroResponse | null>(null);
+  const [paraExcluir, setParaExcluir] = useState<TipoEvento | null>(null);
   const [excluindo, setExcluindo] = useState(false);
 
   const carregar = useCallback(async () => {
     setCarregando(true);
     setErro(null);
     try {
-      setMembros(await membroService.listar());
+      setTipos(await tipoEventoService.listar());
     } catch (error) {
       setErro(extrairMensagemErro(error));
     } finally {
@@ -39,8 +38,8 @@ export function MembroListPage() {
     if (!paraExcluir) return;
     setExcluindo(true);
     try {
-      await membroService.remover(paraExcluir.id);
-      showToast("success", `Membro "${paraExcluir.pessoa?.nome}" removido com sucesso.`);
+      await tipoEventoService.remover(paraExcluir.id);
+      showToast("success", `Tipo de evento "${paraExcluir.descricao}" removido com sucesso.`);
       setParaExcluir(null);
       carregar();
     } catch (error) {
@@ -52,46 +51,37 @@ export function MembroListPage() {
 
   return (
     <div>
-      <PageHeader titulo="Membros" subtitulo="Pessoas associadas, com status e período de vínculo." acaoLink="/membros/novo" acaoTexto="Novo membro" />
+      <PageHeader
+        titulo="Tipos de Evento"
+        subtitulo="Categorias usadas para classificar o histórico dos membros."
+        acaoLink="/tipos-evento/novo"
+        acaoTexto="Novo tipo"
+      />
 
       {erro && <Alert mensagem={erro} />}
 
       {carregando ? (
-        <Loading texto="Carregando membros..." />
+        <Loading texto="Carregando tipos de evento..." />
       ) : (
         <DataTable
-          data={membros}
+          data={tipos}
           keyExtractor={(item) => item.id}
-          mensagemVazia="Nenhum membro cadastrado ainda."
+          mensagemVazia="Nenhum tipo de evento cadastrado ainda."
           columns={[
-            { header: "Pessoa", render: (item) => item.pessoa?.nome ?? "-" },
-            { header: "Status", render: (item) => item.status?.descricao ?? "-" },
-            { header: "Inclusão", render: (item) => formatarData(item.dataInclusao) },
-            { header: "Saída", render: (item) => formatarData(item.dataSaida) },
-            {
-              header: "Situação",
-              render: (item) => (
-                <span className={`badge ${item.ativo ? "badge-verde" : "badge-cinza"}`}>
-                  {item.ativo ? "Ativo" : "Inativo"}
-                </span>
-              ),
-            },
+            { header: "Descrição", render: (item) => item.descricao },
             {
               header: "",
               className: "col-acoes",
               render: (item) => (
                 <>
-                  <Link to={`/membros/${item.id}`} className="btn btn-secundario btn-sm btn-icone" title="Ver histórico" aria-label={`Ver histórico de ${item.pessoa?.nome}`}>
-                    📋
-                  </Link>{" "}
-                  <Link to={`/membros/${item.id}/editar`} className="btn btn-secundario btn-sm btn-icone" title="Editar" aria-label={`Editar membro ${item.pessoa?.nome}`}>
+                  <Link to={`/tipos-evento/${item.id}/editar`} className="btn btn-secundario btn-sm btn-icone" title="Editar" aria-label={`Editar ${item.descricao}`}>
                     ✎
                   </Link>{" "}
                   <button
                     type="button"
                     className="btn btn-perigo btn-sm btn-icone"
                     title="Excluir"
-                    aria-label={`Excluir membro ${item.pessoa?.nome}`}
+                    aria-label={`Excluir ${item.descricao}`}
                     onClick={() => setParaExcluir(item)}
                   >
                     🗑
@@ -105,8 +95,8 @@ export function MembroListPage() {
 
       <ConfirmDialog
         aberto={paraExcluir !== null}
-        titulo="Excluir membro"
-        mensagem={`Tem certeza de que deseja excluir o vínculo de membro de "${paraExcluir?.pessoa?.nome}"?`}
+        titulo="Excluir tipo de evento"
+        mensagem={`Tem certeza de que deseja excluir o tipo de evento "${paraExcluir?.descricao}"?`}
         carregando={excluindo}
         onCancelar={() => setParaExcluir(null)}
         onConfirmar={confirmarExclusao}

@@ -90,6 +90,15 @@
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
+.sidebar-secao {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #9ccaa8;
+  font-weight: 700;
+  padding: 0.9rem 0.75rem 0.3rem;
+}
+
 .sidebar-link-icone {
   font-size: 1.05rem;
 }
