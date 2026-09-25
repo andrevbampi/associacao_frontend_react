@@ -16,6 +16,7 @@ const LINKS_CADASTROS = [
   { to: "/status-membro", label: "Status de Membro", icone: "🏷️" },
   { to: "/tipos-evento", label: "Tipos de Evento", icone: "📌" },
   { to: "/produtos", label: "Produtos", icone: "🛒" },
+  { to: "/categorias-produto", label: "Categorias de Produto", icone: "🗂️" },
 ];
 
 export function Layout() {

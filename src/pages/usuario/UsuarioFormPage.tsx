@@ -27,7 +27,10 @@ export function UsuarioFormPage() {
       setCarregando(true);
       setErro(null);
       try {
-        const listaPessoas = await pessoaService.listar();
+        // Ao criar, só mostra pessoas que ainda não têm usuário. Ao editar,
+        // mostra todas, senão a própria pessoa já vinculada a este usuário
+        // desapareceria do combobox.
+        const listaPessoas = await pessoaService.listar(emEdicao ? undefined : { semUsuario: true });
         setPessoas(listaPessoas);
 
         if (emEdicao) {

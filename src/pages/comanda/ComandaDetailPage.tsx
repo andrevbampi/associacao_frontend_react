@@ -33,6 +33,7 @@ export function ComandaDetailPage() {
   const [removendo, setRemovendo] = useState(false);
 
   const [fechando, setFechando] = useState(false);
+  const [registrandoPagamento, setRegistrandoPagamento] = useState(false);
   const [cancelarAberto, setCancelarAberto] = useState(false);
   const [cancelando, setCancelando] = useState(false);
 
@@ -111,6 +112,19 @@ export function ComandaDetailPage() {
     }
   }
 
+  async function handleRegistrarPagamento() {
+    setRegistrandoPagamento(true);
+    try {
+      const atualizada = await comandaService.registrarPagamento(idComanda);
+      setComanda(atualizada);
+      showToast("success", "Pagamento registrado com sucesso.");
+    } catch (error) {
+      showToast("error", extrairMensagemErro(error));
+    } finally {
+      setRegistrandoPagamento(false);
+    }
+  }
+
   async function confirmarCancelamento() {
     setCancelando(true);
     try {
@@ -144,6 +158,7 @@ export function ComandaDetailPage() {
           <span className={`badge ${comanda.pago ? "badge-verde" : "badge-cinza"}`}>{comanda.pago ? "Pago" : "Pagamento pendente"}</span>
         )}
         {comanda.dataFechamento && <span className="comanda-status-detalhe">Fechada em {formatarDataHora(comanda.dataFechamento)}</span>}
+        {comanda.dataPagamento && <span className="comanda-status-detalhe">Pago em {formatarDataHora(comanda.dataPagamento)}</span>}
       </div>
 
       {aberta && (
@@ -254,6 +269,14 @@ export function ComandaDetailPage() {
           </button>
           <button type="button" className="btn btn-primario" disabled={fechando} onClick={() => handleFechar(true)}>
             {fechando ? <LoadingInline /> : "Fechar e registrar pagamento"}
+          </button>
+        </div>
+      )}
+
+      {comanda.status === "FECHADA" && !comanda.pago && (
+        <div className="comanda-acoes-finais">
+          <button type="button" className="btn btn-primario" disabled={registrandoPagamento} onClick={handleRegistrarPagamento}>
+            {registrandoPagamento ? <LoadingInline /> : "Registrar pagamento"}
           </button>
         </div>
       )}

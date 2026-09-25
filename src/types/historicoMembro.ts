@@ -18,6 +18,7 @@ export interface HistoricoMembroRequest {
   idMembro: number;
   idTipoEvento: number;
   descricao: string;
+  data?: string | null;
   observacao?: string | null;
   ativo: boolean;
 }
@@ -26,6 +27,7 @@ export interface HistoricoMembroFormData {
   id?: number;
   idTipoEvento: number | "";
   descricao: string;
+  data: string;
   observacao: string;
   ativo: boolean;
 }
@@ -33,6 +35,7 @@ export interface HistoricoMembroFormData {
 export const historicoMembroVazio: HistoricoMembroFormData = {
   idTipoEvento: "",
   descricao: "",
+  data: "",
   observacao: "",
   ativo: true,
 };

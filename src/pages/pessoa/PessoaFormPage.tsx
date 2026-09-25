@@ -9,6 +9,7 @@ import { extrairMensagemErro } from "../../services/api";
 import { useToast } from "../../context/ToastContext";
 import { pessoaVazia, TIPO_PESSOA_FISICA, TIPO_PESSOA_JURIDICA, type PessoaFormData } from "../../types/pessoa";
 import { paraDataInput } from "../../utils/formatters";
+import { mascararDocumento, validarDocumento } from "../../utils/documento";
 
 export function PessoaFormPage() {
   const { id } = useParams();
@@ -48,6 +49,12 @@ export function PessoaFormPage() {
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setErro(null);
+
+    if (!validarDocumento(form.documento, form.tipo)) {
+      setErro(form.tipo === TIPO_PESSOA_FISICA ? "CPF inválido." : "CNPJ inválido.");
+      return;
+    }
+
     setSalvando(true);
 
     const payload: PessoaFormData = {
@@ -101,7 +108,10 @@ export function PessoaFormPage() {
             <select
               id="tipo"
               value={form.tipo}
-              onChange={(e) => setForm({ ...form, tipo: Number(e.target.value) as PessoaFormData["tipo"] })}
+              onChange={(e) => {
+                const novoTipo = Number(e.target.value) as PessoaFormData["tipo"];
+                setForm({ ...form, tipo: novoTipo, documento: mascararDocumento(form.documento, novoTipo) });
+              }}
             >
               <option value={TIPO_PESSOA_FISICA}>Física</option>
               <option value={TIPO_PESSOA_JURIDICA}>Jurídica</option>
@@ -109,13 +119,14 @@ export function PessoaFormPage() {
           </div>
 
           <div className="campo">
-            <label htmlFor="documento">Documento (CPF/CNPJ) *</label>
+            <label htmlFor="documento">{form.tipo === TIPO_PESSOA_FISICA ? "CPF *" : "CNPJ *"}</label>
             <input
               id="documento"
               type="text"
               value={form.documento}
-              maxLength={30}
-              onChange={(e) => setForm({ ...form, documento: e.target.value })}
+              placeholder={form.tipo === TIPO_PESSOA_FISICA ? "000.000.000-00" : "00.000.000/0000-00"}
+              maxLength={form.tipo === TIPO_PESSOA_FISICA ? 14 : 18}
+              onChange={(e) => setForm({ ...form, documento: mascararDocumento(e.target.value, form.tipo) })}
               required
             />
           </div>

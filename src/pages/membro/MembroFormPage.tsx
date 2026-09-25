@@ -31,7 +31,13 @@ export function MembroFormPage() {
       setCarregando(true);
       setErro(null);
       try {
-        const [listaPessoas, listaStatus] = await Promise.all([pessoaService.listar(), statusMembroService.listar()]);
+        // Ao criar, só mostra pessoas que ainda não são membros. Ao editar,
+        // mostra todas, senão a própria pessoa já vinculada a este membro
+        // desapareceria do combobox.
+        const [listaPessoas, listaStatus] = await Promise.all([
+          pessoaService.listar(emEdicao ? undefined : { semMembro: true }),
+          statusMembroService.listar(),
+        ]);
         setPessoas(listaPessoas);
         setStatusList(listaStatus);
 

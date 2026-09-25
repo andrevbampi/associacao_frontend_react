@@ -7,9 +7,18 @@ import type {
   StatusComanda,
 } from "../types/comanda";
 
+export interface ComandaFiltro {
+  status?: StatusComanda;
+  idPessoa?: number;
+  nomeTemporario?: string;
+  dataAbertura?: string;
+  pago?: boolean;
+  dataPagamento?: string;
+}
+
 export const comandaService = {
-  async listar(status?: StatusComanda): Promise<ComandaResponse[]> {
-    const { data } = await api.get<ComandaResponse[]>("/comanda/", { params: status ? { status } : undefined });
+  async listar(filtro?: ComandaFiltro): Promise<ComandaResponse[]> {
+    const { data } = await api.get<ComandaResponse[]>("/comanda/", { params: filtro });
     return data;
   },
 
@@ -40,6 +49,11 @@ export const comandaService = {
 
   async fechar(idComanda: number, request: ComandaFechamentoRequest): Promise<ComandaResponse> {
     const { data } = await api.put<ComandaResponse>(`/comanda/${idComanda}/fechar`, request);
+    return data;
+  },
+
+  async registrarPagamento(idComanda: number): Promise<ComandaResponse> {
+    const { data } = await api.put<ComandaResponse>(`/comanda/${idComanda}/pagamento`, {});
     return data;
   },
 

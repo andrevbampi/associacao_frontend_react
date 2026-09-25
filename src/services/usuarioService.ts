@@ -1,9 +1,14 @@
 import { api } from "./api";
 import type { UsuarioRequest, UsuarioResponse } from "../types/usuario";
 
+export interface UsuarioFiltro {
+  nomePessoa?: string;
+  ativo?: boolean;
+}
+
 export const usuarioService = {
-  async listar(): Promise<UsuarioResponse[]> {
-    const { data } = await api.get<UsuarioResponse[]>("/usuario/");
+  async listar(filtro?: UsuarioFiltro): Promise<UsuarioResponse[]> {
+    const { data } = await api.get<UsuarioResponse[]>("/usuario/", { params: filtro });
     return data;
   },
 

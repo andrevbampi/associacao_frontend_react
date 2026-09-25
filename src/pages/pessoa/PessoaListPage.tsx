@@ -8,7 +8,7 @@ import { ConfirmDialog } from "../../components/common/ConfirmDialog";
 import { pessoaService } from "../../services/pessoaService";
 import { extrairMensagemErro } from "../../services/api";
 import { useToast } from "../../context/ToastContext";
-import { TIPO_PESSOA_LABEL, type Pessoa } from "../../types/pessoa";
+import { TIPO_PESSOA_LABEL, TIPO_PESSOA_FISICA, TIPO_PESSOA_JURIDICA, type Pessoa } from "../../types/pessoa";
 import { formatarData } from "../../utils/formatters";
 
 export function PessoaListPage() {
@@ -19,22 +19,30 @@ export function PessoaListPage() {
   const [pessoaParaExcluir, setPessoaParaExcluir] = useState<Pessoa | null>(null);
   const [excluindo, setExcluindo] = useState(false);
 
+  const [nome, setNome] = useState("");
+  const [tipo, setTipo] = useState<"" | typeof TIPO_PESSOA_FISICA | typeof TIPO_PESSOA_JURIDICA>("");
+
   const carregar = useCallback(async () => {
     setCarregando(true);
     setErro(null);
     try {
-      const dados = await pessoaService.listar();
+      const dados = await pessoaService.listar({ nome: nome || undefined, tipo: tipo === "" ? undefined : tipo });
       setPessoas(dados);
     } catch (error) {
       setErro(extrairMensagemErro(error));
     } finally {
       setCarregando(false);
     }
-  }, []);
+  }, [nome, tipo]);
 
   useEffect(() => {
     carregar();
   }, [carregar]);
+
+  function limparFiltros() {
+    setNome("");
+    setTipo("");
+  }
 
   async function confirmarExclusao() {
     if (!pessoaParaExcluir) return;
@@ -55,6 +63,28 @@ export function PessoaListPage() {
     <div>
       <PageHeader titulo="Pessoas" subtitulo="Cadastro geral de pessoas físicas e jurídicas." acaoLink="/pessoas/nova" acaoTexto="Nova pessoa" />
 
+      <div className="filtros-card">
+        <div className="filtros-grid">
+          <div className="campo">
+            <label htmlFor="filtroNome">Nome</label>
+            <input id="filtroNome" type="text" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Buscar por nome..." />
+          </div>
+          <div className="campo">
+            <label htmlFor="filtroTipo">Tipo</label>
+            <select id="filtroTipo" value={tipo} onChange={(e) => setTipo(e.target.value === "" ? "" : (Number(e.target.value) as typeof tipo))}>
+              <option value="">Todos</option>
+              <option value={TIPO_PESSOA_FISICA}>Física</option>
+              <option value={TIPO_PESSOA_JURIDICA}>Jurídica</option>
+            </select>
+          </div>
+          <div className="filtros-acoes">
+            <button type="button" className="btn btn-secundario btn-sm" onClick={limparFiltros}>
+              Limpar filtros
+            </button>
+          </div>
+        </div>
+      </div>
+
       {erro && <Alert mensagem={erro} />}
 
       {carregando ? (
@@ -63,7 +93,7 @@ export function PessoaListPage() {
         <DataTable
           data={pessoas}
           keyExtractor={(pessoa) => pessoa.id}
-          mensagemVazia="Nenhuma pessoa cadastrada ainda."
+          mensagemVazia="Nenhuma pessoa encontrada para esse filtro."
           columns={[
             { header: "Nome", render: (pessoa) => pessoa.nome },
             { header: "Tipo", render: (pessoa) => TIPO_PESSOA_LABEL[pessoa.tipo] ?? pessoa.tipo },
