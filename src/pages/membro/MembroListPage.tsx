@@ -6,30 +6,53 @@ import { Alert } from "../../components/common/Alert";
 import { DataTable } from "../../components/common/DataTable";
 import { ConfirmDialog } from "../../components/common/ConfirmDialog";
 import { membroService } from "../../services/membroService";
+import { statusMembroService } from "../../services/statusMembroService";
 import { extrairMensagemErro } from "../../services/api";
 import { useToast } from "../../context/ToastContext";
 import type { MembroResponse } from "../../types/membro";
+import type { StatusMembro } from "../../types/statusMembro";
 import { formatarData } from "../../utils/formatters";
 
 export function MembroListPage() {
   const { showToast } = useToast();
   const [membros, setMembros] = useState<MembroResponse[]>([]);
+  const [statusList, setStatusList] = useState<StatusMembro[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
   const [paraExcluir, setParaExcluir] = useState<MembroResponse | null>(null);
   const [excluindo, setExcluindo] = useState(false);
 
+  const [nomePessoa, setNomePessoa] = useState("");
+  const [idStatus, setIdStatus] = useState<number | "">("");
+  const [ativo, setAtivo] = useState<"" | "true" | "false">("");
+
   const carregar = useCallback(async () => {
     setCarregando(true);
     setErro(null);
     try {
-      setMembros(await membroService.listar());
+      setMembros(
+        await membroService.listar({
+          nomePessoa: nomePessoa || undefined,
+          idStatus: idStatus === "" ? undefined : idStatus,
+          ativo: ativo === "" ? undefined : ativo === "true",
+        })
+      );
     } catch (error) {
       setErro(extrairMensagemErro(error));
     } finally {
       setCarregando(false);
     }
+  }, [nomePessoa, idStatus, ativo]);
+
+  useEffect(() => {
+    statusMembroService.listar().then(setStatusList).catch(() => {});
   }, []);
+
+  function limparFiltros() {
+    setNomePessoa("");
+    setIdStatus("");
+    setAtivo("");
+  }
 
   useEffect(() => {
     carregar();
@@ -54,6 +77,39 @@ export function MembroListPage() {
     <div>
       <PageHeader titulo="Membros" subtitulo="Pessoas associadas, com status e período de vínculo." acaoLink="/membros/novo" acaoTexto="Novo membro" />
 
+      <div className="filtros-card">
+        <div className="filtros-grid">
+          <div className="campo">
+            <label htmlFor="filtroNomePessoa">Nome da pessoa</label>
+            <input id="filtroNomePessoa" type="text" value={nomePessoa} onChange={(e) => setNomePessoa(e.target.value)} placeholder="Buscar por nome..." />
+          </div>
+          <div className="campo">
+            <label htmlFor="filtroStatus">Status</label>
+            <select id="filtroStatus" value={idStatus} onChange={(e) => setIdStatus(e.target.value ? Number(e.target.value) : "")}>
+              <option value="">Todos</option>
+              {statusList.map((status) => (
+                <option key={status.id} value={status.id}>
+                  {status.descricao}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="campo">
+            <label htmlFor="filtroAtivo">Situação</label>
+            <select id="filtroAtivo" value={ativo} onChange={(e) => setAtivo(e.target.value as typeof ativo)}>
+              <option value="">Todas</option>
+              <option value="true">Ativo</option>
+              <option value="false">Inativo</option>
+            </select>
+          </div>
+          <div className="filtros-acoes">
+            <button type="button" className="btn btn-secundario btn-sm" onClick={limparFiltros}>
+              Limpar filtros
+            </button>
+          </div>
+        </div>
+      </div>
+
       {erro && <Alert mensagem={erro} />}
 
       {carregando ? (
@@ -62,7 +118,7 @@ export function MembroListPage() {
         <DataTable
           data={membros}
           keyExtractor={(item) => item.id}
-          mensagemVazia="Nenhum membro cadastrado ainda."
+          mensagemVazia="Nenhum membro encontrado para esse filtro."
           columns={[
             { header: "Pessoa", render: (item) => item.pessoa?.nome ?? "-" },
             { header: "Status", render: (item) => item.status?.descricao ?? "-" },

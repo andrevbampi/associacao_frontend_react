@@ -16,6 +16,8 @@ import { TipoEventoListPage } from "./pages/tipoEvento/TipoEventoListPage";
 import { TipoEventoFormPage } from "./pages/tipoEvento/TipoEventoFormPage";
 import { ProdutoListPage } from "./pages/produto/ProdutoListPage";
 import { ProdutoFormPage } from "./pages/produto/ProdutoFormPage";
+import { CategoriaProdutoListPage } from "./pages/categoriaProduto/CategoriaProdutoListPage";
+import { CategoriaProdutoFormPage } from "./pages/categoriaProduto/CategoriaProdutoFormPage";
 import { ComandaListPage } from "./pages/comanda/ComandaListPage";
 import { ComandaAbrirPage } from "./pages/comanda/ComandaAbrirPage";
 import { ComandaDetailPage } from "./pages/comanda/ComandaDetailPage";
@@ -54,6 +56,10 @@ function App() {
           <Route path="produtos" element={<ProdutoListPage />} />
           <Route path="produtos/novo" element={<ProdutoFormPage />} />
           <Route path="produtos/:id/editar" element={<ProdutoFormPage />} />
+
+          <Route path="categorias-produto" element={<CategoriaProdutoListPage />} />
+          <Route path="categorias-produto/nova" element={<CategoriaProdutoFormPage />} />
+          <Route path="categorias-produto/:id/editar" element={<CategoriaProdutoFormPage />} />
 
           <Route path="comandas" element={<ComandaListPage />} />
           <Route path="comandas/nova" element={<ComandaAbrirPage />} />

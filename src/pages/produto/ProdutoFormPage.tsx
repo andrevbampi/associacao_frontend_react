@@ -4,9 +4,11 @@ import { PageHeader } from "../../components/common/PageHeader";
 import { Loading, LoadingInline } from "../../components/common/Loading";
 import { Alert } from "../../components/common/Alert";
 import { produtoService } from "../../services/produtoService";
+import { categoriaProdutoService } from "../../services/categoriaProdutoService";
 import { extrairMensagemErro } from "../../services/api";
 import { useToast } from "../../context/ToastContext";
 import { produtoVazio, type ProdutoFormData } from "../../types/produto";
+import type { CategoriaProduto } from "../../types/categoriaProduto";
 
 export function ProdutoFormPage() {
   const { id } = useParams();
@@ -15,24 +17,34 @@ export function ProdutoFormPage() {
   const { showToast } = useToast();
 
   const [form, setForm] = useState<ProdutoFormData>(produtoVazio);
-  const [carregando, setCarregando] = useState(emEdicao);
+  const [categorias, setCategorias] = useState<CategoriaProduto[]>([]);
+  const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!emEdicao) return;
-
     async function carregar() {
       setCarregando(true);
       setErro(null);
       try {
-        const lista = await produtoService.listar();
-        const item = lista.find((p) => p.id === Number(id));
-        if (!item) {
-          setErro("Produto não encontrado.");
-          return;
+        setCategorias(await categoriaProdutoService.listar());
+
+        if (emEdicao) {
+          const lista = await produtoService.listar();
+          const item = lista.find((p) => p.id === Number(id));
+          if (!item) {
+            setErro("Produto não encontrado.");
+            return;
+          }
+          setForm({
+            id: item.id,
+            descricao: item.descricao,
+            preco: item.preco,
+            precoMembro: item.precoMembro,
+            idCategoria: item.categoria.id,
+            ativo: item.ativo,
+          });
         }
-        setForm(item);
       } catch (error) {
         setErro(extrairMensagemErro(error));
       } finally {
@@ -49,6 +61,10 @@ export function ProdutoFormPage() {
 
     if (form.preco === "" || form.precoMembro === "") {
       setErro("Informe os dois preços.");
+      return;
+    }
+    if (form.idCategoria === "") {
+      setErro("Selecione a categoria.");
       return;
     }
 
@@ -95,6 +111,29 @@ export function ProdutoFormPage() {
               onChange={(e) => setForm({ ...form, descricao: e.target.value })}
               required
             />
+          </div>
+
+          <div className="campo campo-largo">
+            <label htmlFor="idCategoria">Categoria *</label>
+            {categorias.length === 0 ? (
+              <span className="campo-ajuda">
+                Nenhuma categoria cadastrada. Cadastre uma em "Categorias de Produto" antes de continuar.
+              </span>
+            ) : (
+              <select
+                id="idCategoria"
+                value={form.idCategoria}
+                onChange={(e) => setForm({ ...form, idCategoria: e.target.value ? Number(e.target.value) : "" })}
+                required
+              >
+                <option value="">Selecione...</option>
+                {categorias.map((categoria) => (
+                  <option key={categoria.id} value={categoria.id}>
+                    {categoria.descricao}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           <div className="campo">

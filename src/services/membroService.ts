@@ -1,9 +1,15 @@
 import { api } from "./api";
 import type { MembroRequest, MembroResponse } from "../types/membro";
 
+export interface MembroFiltro {
+  nomePessoa?: string;
+  idStatus?: number;
+  ativo?: boolean;
+}
+
 export const membroService = {
-  async listar(): Promise<MembroResponse[]> {
-    const { data } = await api.get<MembroResponse[]>("/membro/");
+  async listar(filtro?: MembroFiltro): Promise<MembroResponse[]> {
+    const { data } = await api.get<MembroResponse[]>("/membro/", { params: filtro });
     return data;
   },
 

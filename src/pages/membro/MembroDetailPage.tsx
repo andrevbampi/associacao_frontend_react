@@ -13,7 +13,7 @@ import type { MembroResponse } from "../../types/membro";
 import type { HistoricoMembroFormData, HistoricoMembroResponse } from "../../types/historicoMembro";
 import { historicoMembroVazio } from "../../types/historicoMembro";
 import type { TipoEvento } from "../../types/tipoEvento";
-import { formatarData, formatarDataHora } from "../../utils/formatters";
+import { formatarData, formatarDataHora, paraDataHoraInput } from "../../utils/formatters";
 import "./MembroDetailPage.css";
 
 export function MembroDetailPage() {
@@ -67,6 +67,7 @@ export function MembroDetailPage() {
       id: item.id,
       idTipoEvento: item.tipoEvento.id,
       descricao: item.descricao,
+      data: paraDataHoraInput(item.data),
       observacao: item.observacao ?? "",
       ativo: item.ativo,
     });
@@ -95,6 +96,7 @@ export function MembroDetailPage() {
           idMembro,
           idTipoEvento: Number(form.idTipoEvento),
           descricao: form.descricao,
+          data: form.data || null,
           observacao: form.observacao || null,
           ativo: form.ativo,
         });
@@ -104,6 +106,7 @@ export function MembroDetailPage() {
           idMembro,
           idTipoEvento: Number(form.idTipoEvento),
           descricao: form.descricao,
+          data: form.data || null,
           observacao: form.observacao || null,
           ativo: true,
         });
@@ -191,6 +194,12 @@ export function MembroDetailPage() {
                 ))}
               </select>
             )}
+          </div>
+
+          <div className="campo">
+            <label htmlFor="data">Data e hora</label>
+            <input id="data" type="datetime-local" value={form.data} onChange={(e) => setForm({ ...form, data: e.target.value })} />
+            <span className="campo-ajuda">Se não informada, será usado o momento atual.</span>
           </div>
 
           {form.id && (

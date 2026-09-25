@@ -19,6 +19,12 @@ export function formatarDataHora(data: string | null | undefined): string {
   return `${dataFormatada} ${parteHora.substring(0, 5)}`;
 }
 
+/** ISO "2026-09-25T14:33:00" -> valor aceito por <input type="datetime-local"> */
+export function paraDataHoraInput(data: string | null | undefined): string {
+  if (!data) return "";
+  return data.substring(0, 16);
+}
+
 export function formatarMoeda(valor: number | null | undefined): string {
   if (valor === null || valor === undefined) return "-";
   return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
