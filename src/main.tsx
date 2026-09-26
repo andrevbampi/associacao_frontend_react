@@ -5,6 +5,7 @@ import "./index.css";
 import App from "./App.tsx";
 import { ToastProvider } from "./context/ToastContext";
 import { AuthProvider } from "./context/AuthContext";
+import { ParametrosProvider } from "./context/ParametrosContext";
 import { ToastViewport } from "./components/common/ToastViewport";
 
 createRoot(document.getElementById("root")!).render(
@@ -12,7 +13,9 @@ createRoot(document.getElementById("root")!).render(
     <BrowserRouter>
       <ToastProvider>
         <AuthProvider>
-          <App />
+          <ParametrosProvider>
+            <App />
+          </ParametrosProvider>
         </AuthProvider>
         <ToastViewport />
       </ToastProvider>

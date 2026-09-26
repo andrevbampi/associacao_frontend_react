@@ -2,6 +2,7 @@ import { api } from "./api";
 import type {
   LancamentoFinanceiroFormData,
   LancamentoFinanceiroResponse,
+  ResumoCaixa,
   ResumoFinanceiro,
   TipoLancamento,
 } from "../types/lancamentoFinanceiro";
@@ -13,12 +14,14 @@ export interface LancamentoFinanceiroFiltro {
   idCategoriaFinanceira?: number;
   tipo?: TipoLancamento | "";
   pago?: boolean;
+  idCaixa?: number;
 }
 
 function paraRequest(lancamento: LancamentoFinanceiroFormData) {
   return {
     id: lancamento.id,
     idCategoriaFinanceira: lancamento.idCategoriaFinanceira === "" ? 0 : Number(lancamento.idCategoriaFinanceira),
+    idCaixa: lancamento.idCaixa === "" ? 0 : Number(lancamento.idCaixa),
     tipo: lancamento.tipo,
     valor: lancamento.valor === "" ? 0 : Number(lancamento.valor),
     data: lancamento.data,
@@ -39,6 +42,11 @@ export const lancamentoFinanceiroService = {
 
   async resumo(dataInicio?: string, dataFim?: string): Promise<ResumoFinanceiro> {
     const { data } = await api.get<ResumoFinanceiro>("/lancamento-financeiro/resumo", { params: { dataInicio, dataFim } });
+    return data;
+  },
+
+  async resumoPorCaixa(): Promise<ResumoCaixa[]> {
+    const { data } = await api.get<ResumoCaixa[]>("/lancamento-financeiro/resumo-por-caixa");
     return data;
   },
 

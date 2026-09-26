@@ -1,4 +1,5 @@
 import type { CategoriaFinanceira } from "./categoriaFinanceira";
+import type { Caixa } from "./caixa";
 import type { FormaPagamento } from "./formaPagamento";
 import type { MembroResponse } from "./membro";
 import type { Pessoa } from "./pessoa";
@@ -14,6 +15,7 @@ export const TIPO_LANCAMENTO_LABEL: Record<TipoLancamento, string> = {
 export interface LancamentoFinanceiroResponse {
   id: number;
   categoriaFinanceira: CategoriaFinanceira;
+  caixa: Caixa;
   tipo: TipoLancamento;
   valor: number;
   data: string;
@@ -31,6 +33,7 @@ export interface LancamentoFinanceiroResponse {
 export interface LancamentoFinanceiroRequest {
   id?: number;
   idCategoriaFinanceira: number;
+  idCaixa: number;
   tipo: TipoLancamento;
   valor: number;
   data: string;
@@ -46,6 +49,7 @@ export interface LancamentoFinanceiroRequest {
 export interface LancamentoFinanceiroFormData {
   id?: number;
   idCategoriaFinanceira: number | "";
+  idCaixa: number | "";
   tipo: TipoLancamento;
   valor: number | "";
   data: string;
@@ -59,6 +63,7 @@ export interface LancamentoFinanceiroFormData {
 
 export const lancamentoFinanceiroVazio: LancamentoFinanceiroFormData = {
   idCategoriaFinanceira: "",
+  idCaixa: "",
   tipo: "ENTRADA",
   valor: "",
   data: new Date().toISOString().substring(0, 10),
@@ -74,4 +79,9 @@ export interface ResumoFinanceiro {
   saldoAtual: number;
   totalEntradasPeriodo: number;
   totalSaidasPeriodo: number;
+}
+
+export interface ResumoCaixa {
+  caixa: Caixa;
+  saldoAtual: number;
 }

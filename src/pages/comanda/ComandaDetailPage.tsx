@@ -6,10 +6,14 @@ import { Alert } from "../../components/common/Alert";
 import { ConfirmDialog } from "../../components/common/ConfirmDialog";
 import { comandaService } from "../../services/comandaService";
 import { produtoService } from "../../services/produtoService";
+import { caixaService } from "../../services/caixaService";
+import { parametroSistemaService } from "../../services/parametroSistemaService";
 import { extrairMensagemErro } from "../../services/api";
 import { useToast } from "../../context/ToastContext";
 import type { ComandaResponse } from "../../types/comanda";
 import type { Produto } from "../../types/produto";
+import type { Caixa } from "../../types/caixa";
+import { CHAVE_CAIXA_COMANDA } from "../../types/parametroSistema";
 import { FORMAS_PAGAMENTO, FORMA_PAGAMENTO_LABEL, type FormaPagamento } from "../../types/formaPagamento";
 import { formatarDataHora, formatarMoeda } from "../../utils/formatters";
 import "./Comanda.css";
@@ -39,14 +43,28 @@ export function ComandaDetailPage() {
   const [cancelando, setCancelando] = useState(false);
   const [formaPagamento, setFormaPagamento] = useState<FormaPagamento | "">("");
   const [desfazendo, setDesfazendo] = useState(false);
+  const [caixas, setCaixas] = useState<Caixa[]>([]);
+  const [idCaixaSelecionado, setIdCaixaSelecionado] = useState<number | "">("");
+  const [caixaComandaAutomatico, setCaixaComandaAutomatico] = useState(true);
 
   const carregar = useCallback(async () => {
     setCarregando(true);
     setErro(null);
     try {
-      const [comandaAtual, produtosAtivos] = await Promise.all([comandaService.buscarPorId(idComanda), produtoService.listar()]);
+      const [comandaAtual, produtosAtivos, listaCaixas, parametros] = await Promise.all([
+        comandaService.buscarPorId(idComanda),
+        produtoService.listar(),
+        caixaService.listar(),
+        parametroSistemaService.listar(),
+      ]);
       setComanda(comandaAtual);
       setProdutos(produtosAtivos.filter((p) => p.ativo));
+      setCaixas(listaCaixas);
+
+      const caixaComanda = parametros.find((p) => p.chave === CHAVE_CAIXA_COMANDA);
+      const idCaixaParametro = caixaComanda?.valor ? Number(caixaComanda.valor) : 0;
+      const caixaValido = idCaixaParametro > 0 && listaCaixas.some((c) => c.id === idCaixaParametro);
+      setCaixaComandaAutomatico(caixaValido);
     } catch (error) {
       setErro(extrairMensagemErro(error));
     } finally {
@@ -106,9 +124,18 @@ export function ComandaDetailPage() {
   }
 
   async function handleFechar(pago: boolean) {
+    if (pago && !caixaComandaAutomatico && idCaixaSelecionado === "") {
+      showToast("error", "Selecione o caixa para registrar o pagamento.");
+      return;
+    }
+
     setFechando(true);
     try {
-      const atualizada = await comandaService.fechar(idComanda, { pago, formaPagamento: pago ? formaPagamento || null : null });
+      const atualizada = await comandaService.fechar(idComanda, {
+        pago,
+        formaPagamento: pago ? formaPagamento || null : null,
+        idCaixa: pago && !caixaComandaAutomatico ? Number(idCaixaSelecionado) : null,
+      });
       setComanda(atualizada);
       showToast("success", pago ? "Comanda fechada e paga." : "Comanda fechada (pagamento pendente).");
     } catch (error) {
@@ -119,9 +146,17 @@ export function ComandaDetailPage() {
   }
 
   async function handleRegistrarPagamento() {
+    if (!caixaComandaAutomatico && idCaixaSelecionado === "") {
+      showToast("error", "Selecione o caixa para registrar o pagamento.");
+      return;
+    }
+
     setRegistrandoPagamento(true);
     try {
-      const atualizada = await comandaService.registrarPagamento(idComanda, { formaPagamento: formaPagamento || null });
+      const atualizada = await comandaService.registrarPagamento(idComanda, {
+        formaPagamento: formaPagamento || null,
+        idCaixa: caixaComandaAutomatico ? null : Number(idCaixaSelecionado),
+      });
       setComanda(atualizada);
       showToast("success", "Pagamento registrado com sucesso.");
     } catch (error) {
@@ -307,6 +342,20 @@ export function ComandaDetailPage() {
             </select>
           </div>
 
+          {!caixaComandaAutomatico && (
+            <div className="campo comanda-forma-pagamento">
+              <label htmlFor="idCaixaSelecionado">Caixa * (ao fechar pago)</label>
+              <select id="idCaixaSelecionado" value={idCaixaSelecionado} onChange={(e) => setIdCaixaSelecionado(e.target.value ? Number(e.target.value) : "")}>
+                <option value="">Selecione...</option>
+                {caixas.map((caixa) => (
+                  <option key={caixa.id} value={caixa.id}>
+                    {caixa.nome}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div className="comanda-acoes-finais">
             <button type="button" className="btn btn-secundario" onClick={() => setCancelarAberto(true)}>
               Cancelar comanda
@@ -334,6 +383,23 @@ export function ComandaDetailPage() {
               ))}
             </select>
           </div>
+          {!caixaComandaAutomatico && (
+            <div className="campo comanda-forma-pagamento">
+              <label htmlFor="idCaixaSelecionadoPendente">Caixa *</label>
+              <select
+                id="idCaixaSelecionadoPendente"
+                value={idCaixaSelecionado}
+                onChange={(e) => setIdCaixaSelecionado(e.target.value ? Number(e.target.value) : "")}
+              >
+                <option value="">Selecione...</option>
+                {caixas.map((caixa) => (
+                  <option key={caixa.id} value={caixa.id}>
+                    {caixa.nome}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           <button type="button" className="btn btn-secundario" disabled={desfazendo} onClick={handleDesfazerFechamento}>
             {desfazendo ? <LoadingInline /> : "Desfazer fechamento"}
           </button>

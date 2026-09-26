@@ -6,10 +6,12 @@ import { Alert } from "../../components/common/Alert";
 import { DataTable } from "../../components/common/DataTable";
 import { lancamentoFinanceiroService } from "../../services/lancamentoFinanceiroService";
 import { categoriaFinanceiraService } from "../../services/categoriaFinanceiraService";
+import { caixaService } from "../../services/caixaService";
 import { extrairMensagemErro } from "../../services/api";
 import { useToast } from "../../context/ToastContext";
-import { TIPO_LANCAMENTO_LABEL, type LancamentoFinanceiroResponse, type ResumoFinanceiro, type TipoLancamento } from "../../types/lancamentoFinanceiro";
+import { TIPO_LANCAMENTO_LABEL, type LancamentoFinanceiroResponse, type ResumoCaixa, type ResumoFinanceiro, type TipoLancamento } from "../../types/lancamentoFinanceiro";
 import type { CategoriaFinanceira } from "../../types/categoriaFinanceira";
+import type { Caixa } from "../../types/caixa";
 import { FORMA_PAGAMENTO_LABEL } from "../../types/formaPagamento";
 import { formatarData, formatarMoeda } from "../../utils/formatters";
 import "./Financeiro.css";
@@ -18,7 +20,9 @@ export function LancamentoFinanceiroListPage() {
   const { showToast } = useToast();
   const [lancamentos, setLancamentos] = useState<LancamentoFinanceiroResponse[]>([]);
   const [categorias, setCategorias] = useState<CategoriaFinanceira[]>([]);
+  const [caixas, setCaixas] = useState<Caixa[]>([]);
   const [resumo, setResumo] = useState<ResumoFinanceiro | null>(null);
+  const [resumoPorCaixa, setResumoPorCaixa] = useState<ResumoCaixa[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
   const [registrandoPagamento, setRegistrandoPagamento] = useState<number | null>(null);
@@ -26,6 +30,7 @@ export function LancamentoFinanceiroListPage() {
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
   const [idCategoriaFinanceira, setIdCategoriaFinanceira] = useState<number | "">("");
+  const [idCaixa, setIdCaixa] = useState<number | "">("");
   const [tipo, setTipo] = useState<TipoLancamento | "">("");
   const [pago, setPago] = useState<"" | "true" | "false">("");
 
@@ -37,24 +42,28 @@ export function LancamentoFinanceiroListPage() {
         dataInicio: dataInicio || undefined,
         dataFim: dataFim || undefined,
         idCategoriaFinanceira: idCategoriaFinanceira === "" ? undefined : idCategoriaFinanceira,
+        idCaixa: idCaixa === "" ? undefined : idCaixa,
         tipo: tipo || undefined,
         pago: pago === "" ? undefined : pago === "true",
       };
-      const [lista, resumoResp] = await Promise.all([
+      const [lista, resumoResp, resumoCaixaResp] = await Promise.all([
         lancamentoFinanceiroService.listar(filtro),
         lancamentoFinanceiroService.resumo(dataInicio || undefined, dataFim || undefined),
+        lancamentoFinanceiroService.resumoPorCaixa(),
       ]);
       setLancamentos(lista);
       setResumo(resumoResp);
+      setResumoPorCaixa(resumoCaixaResp);
     } catch (error) {
       setErro(extrairMensagemErro(error));
     } finally {
       setCarregando(false);
     }
-  }, [dataInicio, dataFim, idCategoriaFinanceira, tipo, pago]);
+  }, [dataInicio, dataFim, idCategoriaFinanceira, idCaixa, tipo, pago]);
 
   useEffect(() => {
     categoriaFinanceiraService.listar().then(setCategorias).catch(() => {});
+    caixaService.listar().then(setCaixas).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -65,6 +74,7 @@ export function LancamentoFinanceiroListPage() {
     setDataInicio("");
     setDataFim("");
     setIdCategoriaFinanceira("");
+    setIdCaixa("");
     setTipo("");
     setPago("");
   }
@@ -103,6 +113,17 @@ export function LancamentoFinanceiroListPage() {
         </div>
       )}
 
+      {resumoPorCaixa.length > 0 && (
+        <div className="resumo-financeiro">
+          {resumoPorCaixa.map((item) => (
+            <div className="resumo-card" key={item.caixa.id}>
+              <div className="resumo-card-titulo">Saldo do caixa "{item.caixa.nome}"</div>
+              <div className={`resumo-card-valor ${item.saldoAtual < 0 ? "negativo" : ""}`}>{formatarMoeda(item.saldoAtual)}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="filtros-card">
         <div className="filtros-grid">
           <div className="campo">
@@ -120,6 +141,17 @@ export function LancamentoFinanceiroListPage() {
               {categorias.map((categoria) => (
                 <option key={categoria.id} value={categoria.id}>
                   {categoria.descricao}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="campo">
+            <label htmlFor="filtroCaixa">Caixa</label>
+            <select id="filtroCaixa" value={idCaixa} onChange={(e) => setIdCaixa(e.target.value ? Number(e.target.value) : "")}>
+              <option value="">Todos</option>
+              {caixas.map((caixa) => (
+                <option key={caixa.id} value={caixa.id}>
+                  {caixa.nome}
                 </option>
               ))}
             </select>
@@ -160,6 +192,7 @@ export function LancamentoFinanceiroListPage() {
           columns={[
             { header: "Data", render: (item) => formatarData(item.data) },
             { header: "Categoria", render: (item) => item.categoriaFinanceira.descricao },
+            { header: "Caixa", render: (item) => item.caixa.nome },
             {
               header: "Tipo",
               render: (item) => <span className={`badge ${item.tipo === "ENTRADA" ? "badge-verde" : "badge-vermelho"}`}>{TIPO_LANCAMENTO_LABEL[item.tipo]}</span>,
