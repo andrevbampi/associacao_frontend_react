@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { PageHeader } from "../../components/common/PageHeader";
 import { Loading, LoadingInline } from "../../components/common/Loading";
 import { Alert } from "../../components/common/Alert";
+import { SelectComFoto } from "../../components/common/SelectComFoto";
+import { PessoaIcone } from "../../components/common/PessoaIcone";
 import { usuarioService } from "../../services/usuarioService";
 import { pessoaService } from "../../services/pessoaService";
 import { extrairMensagemErro } from "../../services/api";
@@ -129,19 +131,17 @@ export function UsuarioFormPage() {
 
           <div className="campo campo-largo">
             <label htmlFor="idPessoa">Pessoa *</label>
-            <select
+            <SelectComFoto
               id="idPessoa"
               value={form.idPessoa}
-              onChange={(e) => setForm({ ...form, idPessoa: e.target.value ? Number(e.target.value) : "" })}
-              required
-            >
-              <option value="">Selecione uma pessoa...</option>
-              {pessoas.map((pessoa) => (
-                <option key={pessoa.id} value={pessoa.id}>
-                  {pessoa.nome} ({pessoa.documento})
-                </option>
-              ))}
-            </select>
+              onChange={(idPessoa) => setForm({ ...form, idPessoa })}
+              placeholder="Selecione uma pessoa..."
+              opcoes={pessoas.map((pessoa) => ({
+                value: pessoa.id,
+                label: `${pessoa.nome} (${pessoa.documento})`,
+                icone: <PessoaIcone pessoa={pessoa} />,
+              }))}
+            />
           </div>
 
           <div className="campo campo-checkbox campo-largo">

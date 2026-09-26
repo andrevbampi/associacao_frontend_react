@@ -5,6 +5,7 @@ import { Loading } from "../../components/common/Loading";
 import { Alert } from "../../components/common/Alert";
 import { DataTable } from "../../components/common/DataTable";
 import { ConfirmDialog } from "../../components/common/ConfirmDialog";
+import { PessoaIcone } from "../../components/common/PessoaIcone";
 import { membroService } from "../../services/membroService";
 import { statusMembroService } from "../../services/statusMembroService";
 import { extrairMensagemErro } from "../../services/api";
@@ -120,6 +121,7 @@ export function MembroListPage() {
           keyExtractor={(item) => item.id}
           mensagemVazia="Nenhum membro encontrado para esse filtro."
           columns={[
+            { header: "", render: (item) => (item.pessoa ? <PessoaIcone pessoa={item.pessoa} /> : null) },
             { header: "Pessoa", render: (item) => item.pessoa?.nome ?? "-" },
             { header: "Status", render: (item) => item.status?.descricao ?? "-" },
             { header: "Inclusão", render: (item) => formatarData(item.dataInclusao) },

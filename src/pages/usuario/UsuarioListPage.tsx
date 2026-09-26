@@ -5,6 +5,7 @@ import { Loading } from "../../components/common/Loading";
 import { Alert } from "../../components/common/Alert";
 import { DataTable } from "../../components/common/DataTable";
 import { ConfirmDialog } from "../../components/common/ConfirmDialog";
+import { PessoaIcone } from "../../components/common/PessoaIcone";
 import { usuarioService } from "../../services/usuarioService";
 import { extrairMensagemErro } from "../../services/api";
 import { useToast } from "../../context/ToastContext";
@@ -98,6 +99,7 @@ export function UsuarioListPage() {
           keyExtractor={(usuario) => usuario.id}
           mensagemVazia="Nenhum usuário encontrado para esse filtro."
           columns={[
+            { header: "", render: (usuario) => (usuario.pessoa ? <PessoaIcone pessoa={usuario.pessoa} /> : null) },
             { header: "Login", render: (usuario) => usuario.login },
             { header: "Pessoa", render: (usuario) => usuario.pessoa?.nome ?? "-" },
             {

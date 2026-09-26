@@ -4,6 +4,8 @@ import { PageHeader } from "../../components/common/PageHeader";
 import { Loading, LoadingInline } from "../../components/common/Loading";
 import { Alert } from "../../components/common/Alert";
 import { ConfirmDialog } from "../../components/common/ConfirmDialog";
+import { SelectComFoto } from "../../components/common/SelectComFoto";
+import { ProdutoIcone } from "../../components/common/ProdutoIcone";
 import { comandaService } from "../../services/comandaService";
 import { produtoService } from "../../services/produtoService";
 import { caixaService } from "../../services/caixaService";
@@ -237,15 +239,17 @@ export function ComandaDetailPage() {
               {produtos.length === 0 ? (
                 <span className="campo-ajuda">Nenhum produto ativo cadastrado.</span>
               ) : (
-                <select id="idProdutoNovo" value={idProdutoNovo} onChange={(e) => setIdProdutoNovo(e.target.value ? Number(e.target.value) : "")}>
-                  <option value="">Selecione um produto...</option>
-                  {produtos.map((produto) => (
-                    <option key={produto.id} value={produto.id}>
-                      {produto.descricao} — {formatarMoeda(produto.preco)}
-                      {produto.controlaEstoque ? ` (${produto.estoqueDisponivel} em estoque)` : ""}
-                    </option>
-                  ))}
-                </select>
+                <SelectComFoto
+                  id="idProdutoNovo"
+                  value={idProdutoNovo}
+                  onChange={setIdProdutoNovo}
+                  placeholder="Selecione um produto..."
+                  opcoes={produtos.map((produto) => ({
+                    value: produto.id,
+                    label: `${produto.descricao} — ${formatarMoeda(produto.preco)}${produto.controlaEstoque ? ` (${produto.estoqueDisponivel} em estoque)` : ""}`,
+                    icone: <ProdutoIcone produto={produto} />,
+                  }))}
+                />
               )}
             </div>
             <div className="campo comanda-campo-qtd">
@@ -286,7 +290,12 @@ export function ComandaDetailPage() {
             ) : (
               comanda.itens?.map((item) => (
                 <tr key={item.id}>
-                  <td>{item.produto.descricao}</td>
+                  <td>
+                    <span className="select-foto-selecionada">
+                      <ProdutoIcone produto={item.produto} />
+                      {item.produto.descricao}
+                    </span>
+                  </td>
                   <td>{formatarMoeda(item.precoUnitario)}</td>
                   <td>
                     {aberta ? (

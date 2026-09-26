@@ -24,6 +24,7 @@ const LINKS_CADASTROS = [
   { to: "/categorias-produto", label: "Categorias de Produto", icone: "🗂️" },
   { to: "/categorias-financeiras", label: "Categorias Financeiras", icone: "🏦" },
   { to: "/caixas", label: "Caixas", icone: "🗄️" },
+  { to: "/atas", label: "Atas", icone: "📄" },
   { to: "/parametros", label: "Parâmetros do Sistema", icone: "⚙️" },
 ];
 

@@ -31,6 +31,8 @@ import { LancamentoFinanceiroFormPage } from "./pages/financeiro/LancamentoFinan
 import { CaixaListPage } from "./pages/caixa/CaixaListPage";
 import { CaixaFormPage } from "./pages/caixa/CaixaFormPage";
 import { ParametroSistemaPage } from "./pages/parametroSistema/ParametroSistemaPage";
+import { AtaListPage } from "./pages/ata/AtaListPage";
+import { AtaFormPage } from "./pages/ata/AtaFormPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 
 function App() {
@@ -92,6 +94,10 @@ function App() {
           <Route path="caixas/:id/editar" element={<CaixaFormPage />} />
 
           <Route path="parametros" element={<ParametroSistemaPage />} />
+
+          <Route path="atas" element={<AtaListPage />} />
+          <Route path="atas/nova" element={<AtaFormPage />} />
+          <Route path="atas/:id/editar" element={<AtaFormPage />} />
 
           <Route path="*" element={<NotFoundPage />} />
         </Route>

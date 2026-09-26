@@ -10,7 +10,15 @@ import { pessoaService } from "../../services/pessoaService";
 import { documentoPessoaService } from "../../services/documentoPessoaService";
 import { extrairMensagemErro } from "../../services/api";
 import { useToast } from "../../context/ToastContext";
-import { pessoaVazia, TIPO_PESSOA_FISICA, TIPO_PESSOA_JURIDICA, type PessoaFormData } from "../../types/pessoa";
+import {
+  pessoaVazia,
+  TIPO_PESSOA_FISICA,
+  TIPO_PESSOA_JURIDICA,
+  SEXO_MASCULINO,
+  SEXO_FEMININO,
+  SEXO_LABEL,
+  type PessoaFormData,
+} from "../../types/pessoa";
 import type { DocumentoPessoa } from "../../types/documentoPessoa";
 import { paraDataInput, formatarDataHora } from "../../utils/formatters";
 import { mascararDocumento, validarDocumento } from "../../utils/documento";
@@ -225,13 +233,33 @@ export function PessoaFormPage() {
               value={form.tipo}
               onChange={(e) => {
                 const novoTipo = Number(e.target.value) as PessoaFormData["tipo"];
-                setForm({ ...form, tipo: novoTipo, documento: mascararDocumento(form.documento, novoTipo) });
+                setForm({
+                  ...form,
+                  tipo: novoTipo,
+                  documento: mascararDocumento(form.documento, novoTipo),
+                  sexo: novoTipo === TIPO_PESSOA_JURIDICA ? null : form.sexo,
+                });
               }}
             >
               <option value={TIPO_PESSOA_FISICA}>Física</option>
               <option value={TIPO_PESSOA_JURIDICA}>Jurídica</option>
             </select>
           </div>
+
+          {form.tipo === TIPO_PESSOA_FISICA && (
+            <div className="campo">
+              <label htmlFor="sexo">Sexo</label>
+              <select
+                id="sexo"
+                value={form.sexo ?? ""}
+                onChange={(e) => setForm({ ...form, sexo: e.target.value === "" ? null : (e.target.value as PessoaFormData["sexo"]) })}
+              >
+                <option value="">Não informado</option>
+                <option value={SEXO_MASCULINO}>{SEXO_LABEL[SEXO_MASCULINO]}</option>
+                <option value={SEXO_FEMININO}>{SEXO_LABEL[SEXO_FEMININO]}</option>
+              </select>
+            </div>
+          )}
 
           <div className="campo">
             <label htmlFor="documento">{form.tipo === TIPO_PESSOA_FISICA ? "CPF *" : "CNPJ *"}</label>

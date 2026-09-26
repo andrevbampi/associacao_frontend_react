@@ -4,6 +4,8 @@ import { PageHeader } from "../../components/common/PageHeader";
 import { Loading } from "../../components/common/Loading";
 import { Alert } from "../../components/common/Alert";
 import { DataTable } from "../../components/common/DataTable";
+import { SelectComFoto } from "../../components/common/SelectComFoto";
+import { PessoaIcone } from "../../components/common/PessoaIcone";
 import { comandaService } from "../../services/comandaService";
 import { pessoaService } from "../../services/pessoaService";
 import { extrairMensagemErro } from "../../services/api";
@@ -34,9 +36,11 @@ export function ComandaListPage() {
 
   const [idPessoa, setIdPessoa] = useState<number | "">("");
   const [nomeTemporario, setNomeTemporario] = useState("");
-  const [dataAbertura, setDataAbertura] = useState("");
+  const [dataAberturaInicio, setDataAberturaInicio] = useState("");
+  const [dataAberturaFim, setDataAberturaFim] = useState("");
   const [pago, setPago] = useState<"" | "true" | "false">("");
-  const [dataPagamento, setDataPagamento] = useState("");
+  const [dataPagamentoInicio, setDataPagamentoInicio] = useState("");
+  const [dataPagamentoFim, setDataPagamentoFim] = useState("");
 
   const carregar = useCallback(async () => {
     setCarregando(true);
@@ -47,9 +51,11 @@ export function ComandaListPage() {
           status: filtro === "TODAS" ? undefined : filtro,
           idPessoa: idPessoa === "" ? undefined : idPessoa,
           nomeTemporario: nomeTemporario || undefined,
-          dataAbertura: dataAbertura || undefined,
+          dataAberturaInicio: dataAberturaInicio || undefined,
+          dataAberturaFim: dataAberturaFim || undefined,
           pago: pago === "" ? undefined : pago === "true",
-          dataPagamento: dataPagamento || undefined,
+          dataPagamentoInicio: dataPagamentoInicio || undefined,
+          dataPagamentoFim: dataPagamentoFim || undefined,
         })
       );
     } catch (error) {
@@ -57,7 +63,7 @@ export function ComandaListPage() {
     } finally {
       setCarregando(false);
     }
-  }, [filtro, idPessoa, nomeTemporario, dataAbertura, pago, dataPagamento]);
+  }, [filtro, idPessoa, nomeTemporario, dataAberturaInicio, dataAberturaFim, pago, dataPagamentoInicio, dataPagamentoFim]);
 
   useEffect(() => {
     pessoaService.listar().then(setPessoas).catch(() => {});
@@ -70,9 +76,11 @@ export function ComandaListPage() {
   function limparFiltros() {
     setIdPessoa("");
     setNomeTemporario("");
-    setDataAbertura("");
+    setDataAberturaInicio("");
+    setDataAberturaFim("");
     setPago("");
-    setDataPagamento("");
+    setDataPagamentoInicio("");
+    setDataPagamentoFim("");
   }
 
   return (
@@ -96,22 +104,25 @@ export function ComandaListPage() {
         <div className="filtros-grid">
           <div className="campo">
             <label htmlFor="filtroPessoa">Pessoa cadastrada</label>
-            <select id="filtroPessoa" value={idPessoa} onChange={(e) => setIdPessoa(e.target.value ? Number(e.target.value) : "")}>
-              <option value="">Todas</option>
-              {pessoas.map((pessoa) => (
-                <option key={pessoa.id} value={pessoa.id}>
-                  {pessoa.nome}
-                </option>
-              ))}
-            </select>
+            <SelectComFoto
+              id="filtroPessoa"
+              value={idPessoa}
+              onChange={setIdPessoa}
+              textoVazio="Todas"
+              opcoes={pessoas.map((pessoa) => ({ value: pessoa.id, label: pessoa.nome, icone: <PessoaIcone pessoa={pessoa} /> }))}
+            />
           </div>
           <div className="campo">
             <label htmlFor="filtroNomeTemp">Nome temporário</label>
             <input id="filtroNomeTemp" type="text" value={nomeTemporario} onChange={(e) => setNomeTemporario(e.target.value)} placeholder="Ex.: Mesa 5..." />
           </div>
           <div className="campo">
-            <label htmlFor="filtroDataAbertura">Data de abertura</label>
-            <input id="filtroDataAbertura" type="date" value={dataAbertura} onChange={(e) => setDataAbertura(e.target.value)} />
+            <label htmlFor="filtroDataAberturaInicio">Data de abertura (início)</label>
+            <input id="filtroDataAberturaInicio" type="date" value={dataAberturaInicio} onChange={(e) => setDataAberturaInicio(e.target.value)} />
+          </div>
+          <div className="campo">
+            <label htmlFor="filtroDataAberturaFim">Data de abertura (fim)</label>
+            <input id="filtroDataAberturaFim" type="date" value={dataAberturaFim} onChange={(e) => setDataAberturaFim(e.target.value)} />
           </div>
           <div className="campo">
             <label htmlFor="filtroPago">Pago</label>
@@ -122,8 +133,12 @@ export function ComandaListPage() {
             </select>
           </div>
           <div className="campo">
-            <label htmlFor="filtroDataPagamento">Data de pagamento</label>
-            <input id="filtroDataPagamento" type="date" value={dataPagamento} onChange={(e) => setDataPagamento(e.target.value)} />
+            <label htmlFor="filtroDataPagamentoInicio">Data de pagamento (início)</label>
+            <input id="filtroDataPagamentoInicio" type="date" value={dataPagamentoInicio} onChange={(e) => setDataPagamentoInicio(e.target.value)} />
+          </div>
+          <div className="campo">
+            <label htmlFor="filtroDataPagamentoFim">Data de pagamento (fim)</label>
+            <input id="filtroDataPagamentoFim" type="date" value={dataPagamentoFim} onChange={(e) => setDataPagamentoFim(e.target.value)} />
           </div>
           <div className="filtros-acoes">
             <button type="button" className="btn btn-secundario btn-sm" onClick={limparFiltros}>
@@ -143,7 +158,18 @@ export function ComandaListPage() {
           keyExtractor={(item) => item.id}
           mensagemVazia="Nenhuma comanda encontrada para esse filtro."
           columns={[
-            { header: "Cliente", render: (item) => item.pessoa?.nome ?? item.nomeTemporario ?? "-" },
+            {
+              header: "Cliente",
+              render: (item) =>
+                item.pessoa ? (
+                  <span className="select-foto-selecionada">
+                    <PessoaIcone pessoa={item.pessoa} />
+                    {item.pessoa.nome}
+                  </span>
+                ) : (
+                  item.nomeTemporario ?? "-"
+                ),
+            },
             { header: "Abertura", render: (item) => formatarDataHora(item.dataAbertura) },
             {
               header: "Status",

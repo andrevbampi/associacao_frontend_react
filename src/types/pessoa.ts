@@ -8,6 +8,16 @@ export const TIPO_PESSOA_LABEL: Record<TipoPessoa, string> = {
   [TIPO_PESSOA_JURIDICA]: "Jurídica",
 };
 
+export const SEXO_MASCULINO = "MASCULINO";
+export const SEXO_FEMININO = "FEMININO";
+
+export type Sexo = typeof SEXO_MASCULINO | typeof SEXO_FEMININO;
+
+export const SEXO_LABEL: Record<Sexo, string> = {
+  [SEXO_MASCULINO]: "Masculino",
+  [SEXO_FEMININO]: "Feminino",
+};
+
 export interface Pessoa {
   id: number;
   tipo: TipoPessoa;
@@ -17,6 +27,7 @@ export interface Pessoa {
   telefone: string | null;
   email: string | null;
   endereco: string | null;
+  sexo: Sexo | null;
   temFoto: boolean;
 }
 
@@ -30,5 +41,6 @@ export const pessoaVazia: PessoaFormData = {
   telefone: "",
   email: "",
   endereco: "",
+  sexo: null,
   temFoto: false,
 };

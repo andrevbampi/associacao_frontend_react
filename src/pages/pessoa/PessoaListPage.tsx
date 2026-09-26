@@ -5,6 +5,7 @@ import { Loading } from "../../components/common/Loading";
 import { Alert } from "../../components/common/Alert";
 import { DataTable } from "../../components/common/DataTable";
 import { ConfirmDialog } from "../../components/common/ConfirmDialog";
+import { PessoaIcone } from "../../components/common/PessoaIcone";
 import { pessoaService } from "../../services/pessoaService";
 import { extrairMensagemErro } from "../../services/api";
 import { useToast } from "../../context/ToastContext";
@@ -95,6 +96,7 @@ export function PessoaListPage() {
           keyExtractor={(pessoa) => pessoa.id}
           mensagemVazia="Nenhuma pessoa encontrada para esse filtro."
           columns={[
+            { header: "", render: (pessoa) => <PessoaIcone pessoa={pessoa} /> },
             { header: "Nome", render: (pessoa) => pessoa.nome },
             { header: "Tipo", render: (pessoa) => TIPO_PESSOA_LABEL[pessoa.tipo] ?? pessoa.tipo },
             { header: "Documento", render: (pessoa) => pessoa.documento },
