@@ -1,8 +1,10 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PageHeader } from "../../components/common/PageHeader";
 import { Loading, LoadingInline } from "../../components/common/Loading";
 import { Alert } from "../../components/common/Alert";
+import { ConfirmDialog } from "../../components/common/ConfirmDialog";
+import { ImagemAutenticada } from "../../components/common/ImagemAutenticada";
 import { produtoService } from "../../services/produtoService";
 import { categoriaProdutoService } from "../../services/categoriaProdutoService";
 import { extrairMensagemErro } from "../../services/api";
@@ -21,6 +23,10 @@ export function ProdutoFormPage() {
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
+  const [temFoto, setTemFoto] = useState(false);
+  const [enviandoFoto, setEnviandoFoto] = useState(false);
+  const [removendoFotoAberto, setRemovendoFotoAberto] = useState(false);
+  const [removendoFoto, setRemovendoFoto] = useState(false);
 
   useEffect(() => {
     async function carregar() {
@@ -47,6 +53,7 @@ export function ProdutoFormPage() {
             estoqueMinimo: item.estoqueMinimo ?? "",
             controlaEstoque: item.controlaEstoque,
           });
+          setTemFoto(item.temFoto);
         }
       } catch (error) {
         setErro(extrairMensagemErro(error));
@@ -94,6 +101,38 @@ export function ProdutoFormPage() {
     }
   }
 
+  async function handleUploadFoto(event: ChangeEvent<HTMLInputElement>) {
+    const arquivo = event.target.files?.[0];
+    event.target.value = "";
+    if (!arquivo || !id) return;
+
+    setEnviandoFoto(true);
+    try {
+      await produtoService.uploadFoto(Number(id), arquivo);
+      setTemFoto(true);
+      showToast("success", "Foto atualizada com sucesso.");
+    } catch (error) {
+      showToast("error", extrairMensagemErro(error));
+    } finally {
+      setEnviandoFoto(false);
+    }
+  }
+
+  async function confirmarRemocaoFoto() {
+    if (!id) return;
+    setRemovendoFoto(true);
+    try {
+      await produtoService.removerFoto(Number(id));
+      setTemFoto(false);
+      setRemovendoFotoAberto(false);
+      showToast("success", "Foto removida.");
+    } catch (error) {
+      showToast("error", extrairMensagemErro(error));
+    } finally {
+      setRemovendoFoto(false);
+    }
+  }
+
   if (carregando) return <Loading texto="Carregando produto..." />;
 
   return (
@@ -136,6 +175,32 @@ export function ProdutoFormPage() {
                   </option>
                 ))}
               </select>
+            )}
+          </div>
+
+          <div className="campo campo-largo">
+            <label>Foto</label>
+            {emEdicao ? (
+              <div className="foto-linha">
+                {temFoto ? (
+                  <ImagemAutenticada src={`/produto/${id}/foto`} alt="Foto do produto" className="foto-thumbnail" />
+                ) : (
+                  <span className="campo-ajuda">Nenhuma foto cadastrada ainda.</span>
+                )}
+                <div className="foto-acoes">
+                  <label className="btn btn-secundario btn-sm">
+                    {enviandoFoto ? <LoadingInline /> : temFoto ? "Trocar foto" : "Enviar foto"}
+                    <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden onChange={handleUploadFoto} disabled={enviandoFoto} />
+                  </label>
+                  {temFoto && (
+                    <button type="button" className="btn btn-perigo btn-sm" onClick={() => setRemovendoFotoAberto(true)} disabled={enviandoFoto}>
+                      Remover
+                    </button>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <span className="campo-ajuda">Salve o produto primeiro para poder adicionar uma foto.</span>
             )}
           </div>
 
@@ -226,6 +291,15 @@ export function ProdutoFormPage() {
           </button>
         </div>
       </form>
+
+      <ConfirmDialog
+        aberto={removendoFotoAberto}
+        titulo="Remover foto"
+        mensagem="Tem certeza de que deseja remover a foto deste produto?"
+        carregando={removendoFoto}
+        onCancelar={() => setRemovendoFotoAberto(false)}
+        onConfirmar={confirmarRemocaoFoto}
+      />
     </div>
   );
 }

@@ -1,28 +1,31 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
-import { parametroSistemaService } from "../services/parametroSistemaService";
-import { CHAVE_NOME_ASSOCIACAO } from "../types/parametroSistema";
+import { publicConfigService } from "../services/publicConfigService";
 import { useAuth } from "./AuthContext";
 
 const NOME_ASSOCIACAO_PADRAO = "Associação";
 
 interface ParametrosContextValue {
   nomeAssociacao: string;
+  logoUrl: string | null;
   recarregar: () => Promise<void>;
 }
 
 const ParametrosContext = createContext<ParametrosContextValue | undefined>(undefined);
 
-// Carrega os parâmetros do sistema (ex.: nome da associação) uma vez, assim
-// que o usuário está autenticado — a rota /parametro-sistema exige token.
+// Carrega o nome/logo da associação uma vez, assim que o usuário está
+// autenticado. Reaproveita o endpoint público (GET /api/public/config): os
+// dados são os mesmos que a tela de login usa, então não faz sentido ter
+// dois jeitos diferentes de buscá-los.
 export function ParametrosProvider({ children }: { children: ReactNode }) {
   const { autenticado } = useAuth();
   const [nomeAssociacao, setNomeAssociacao] = useState(NOME_ASSOCIACAO_PADRAO);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
   const recarregar = useCallback(async () => {
     try {
-      const parametros = await parametroSistemaService.listar();
-      const nome = parametros.find((p) => p.chave === CHAVE_NOME_ASSOCIACAO)?.valor;
-      setNomeAssociacao(nome && nome.trim() ? nome : NOME_ASSOCIACAO_PADRAO);
+      const config = await publicConfigService.buscar();
+      setNomeAssociacao(config.nomeAssociacao?.trim() ? config.nomeAssociacao : NOME_ASSOCIACAO_PADRAO);
+      setLogoUrl(config.logoUrl ?? null);
     } catch {
       // Se falhar, mantém o nome padrão — não é crítico para o restante do sistema.
     }
@@ -33,10 +36,11 @@ export function ParametrosProvider({ children }: { children: ReactNode }) {
       recarregar();
     } else {
       setNomeAssociacao(NOME_ASSOCIACAO_PADRAO);
+      setLogoUrl(null);
     }
   }, [autenticado, recarregar]);
 
-  return <ParametrosContext.Provider value={{ nomeAssociacao, recarregar }}>{children}</ParametrosContext.Provider>;
+  return <ParametrosContext.Provider value={{ nomeAssociacao, logoUrl, recarregar }}>{children}</ParametrosContext.Provider>;
 }
 
 export function useParametros() {

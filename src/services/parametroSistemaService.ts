@@ -11,4 +11,14 @@ export const parametroSistemaService = {
     const { data } = await api.put<ParametroSistema>("/parametro-sistema/", parametro);
     return data;
   },
+
+  async uploadLogo(arquivo: File): Promise<void> {
+    const formData = new FormData();
+    formData.append("arquivo", arquivo);
+    await api.put("/parametro-sistema/logo", formData, { headers: { "Content-Type": "multipart/form-data" } });
+  },
+
+  async removerLogo(): Promise<void> {
+    await api.delete("/parametro-sistema/logo");
+  },
 };

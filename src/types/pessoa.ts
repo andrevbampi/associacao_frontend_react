@@ -17,6 +17,7 @@ export interface Pessoa {
   telefone: string | null;
   email: string | null;
   endereco: string | null;
+  temFoto: boolean;
 }
 
 export type PessoaFormData = Omit<Pessoa, "id"> & { id?: number };
@@ -29,4 +30,5 @@ export const pessoaVazia: PessoaFormData = {
   telefone: "",
   email: "",
   endereco: "",
+  temFoto: false,
 };

@@ -67,6 +67,12 @@
   font-size: 1.3rem;
 }
 
+.sidebar-marca-logo {
+  max-height: 28px;
+  max-width: 100px;
+  object-fit: contain;
+}
+
 .sidebar-lista {
   list-style: none;
   margin: 0;
@@ -133,6 +139,14 @@
 
 .sidebar-usuario-icone {
   font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.sidebar-usuario-foto {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
   flex-shrink: 0;
 }
 

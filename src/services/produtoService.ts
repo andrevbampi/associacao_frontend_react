@@ -40,4 +40,14 @@ export const produtoService = {
   async remover(id: number): Promise<void> {
     await api.delete(`/produto/${id}`);
   },
+
+  async uploadFoto(id: number, arquivo: File): Promise<void> {
+    const formData = new FormData();
+    formData.append("arquivo", arquivo);
+    await api.put(`/produto/${id}/foto`, formData, { headers: { "Content-Type": "multipart/form-data" } });
+  },
+
+  async removerFoto(id: number): Promise<void> {
+    await api.delete(`/produto/${id}/foto`);
+  },
 };

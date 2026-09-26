@@ -4,6 +4,8 @@ import { emitUnauthorized } from "../utils/authEvents";
 
 const baseURL = import.meta.env.VITE_API_URL ?? "http://localhost:8080/api";
 
+export const apiBaseUrl = baseURL;
+
 export const api = axios.create({
   baseURL,
   headers: {

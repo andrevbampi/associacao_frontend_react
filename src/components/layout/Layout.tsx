@@ -3,6 +3,8 @@ import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
 import { useParametros } from "../../context/ParametrosContext";
+import { ImagemAutenticada } from "../common/ImagemAutenticada";
+import { apiBaseUrl } from "../../services/api";
 import "./Layout.css";
 
 const LINKS = [
@@ -29,7 +31,7 @@ export function Layout() {
   const [menuAberto, setMenuAberto] = useState(false);
   const { usuario, logout } = useAuth();
   const { showToast } = useToast();
-  const { nomeAssociacao } = useParametros();
+  const { nomeAssociacao, logoUrl } = useParametros();
 
   function handleLogout() {
     logout();
@@ -53,7 +55,11 @@ export function Layout() {
       <div className="layout-corpo">
         <nav className={`sidebar ${menuAberto ? "sidebar-aberta" : ""}`}>
           <div className="sidebar-marca">
-            <span className="sidebar-marca-icone">🌿</span>
+            {logoUrl ? (
+              <img src={`${apiBaseUrl}${logoUrl}`} alt="Logo" className="sidebar-marca-logo" />
+            ) : (
+              <span className="sidebar-marca-icone">🌿</span>
+            )}
             <span>{nomeAssociacao}</span>
           </div>
           <ul className="sidebar-lista">
@@ -88,7 +94,16 @@ export function Layout() {
 
           <div className="sidebar-rodape">
             <div className="sidebar-usuario">
-              <span className="sidebar-usuario-icone">👤</span>
+              {usuario?.pessoa?.temFoto ? (
+                <ImagemAutenticada
+                  src={`/pessoa/${usuario.pessoa.id}/foto`}
+                  alt="Foto do usuário"
+                  className="sidebar-usuario-foto"
+                  placeholder={<span className="sidebar-usuario-icone">👤</span>}
+                />
+              ) : (
+                <span className="sidebar-usuario-icone">👤</span>
+              )}
               <div>
                 <div className="sidebar-usuario-nome">{usuario?.pessoa?.nome ?? usuario?.login}</div>
                 <div className="sidebar-usuario-login">@{usuario?.login}</div>
