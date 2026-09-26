@@ -12,6 +12,7 @@ const LINKS = [
   { to: "/comandas", label: "Comandas", icone: "🧾" },
   { to: "/estoque", label: "Estoque", icone: "📦" },
   { to: "/financeiro", label: "Financeiro", icone: "💰" },
+  { to: "/relatorios/consumo-produtos", label: "Relatórios", icone: "📊" },
 ];
 
 const LINKS_CADASTROS = [
