@@ -10,6 +10,7 @@ import { extrairMensagemErro } from "../../services/api";
 import { useToast } from "../../context/ToastContext";
 import type { ComandaResponse } from "../../types/comanda";
 import type { Produto } from "../../types/produto";
+import { FORMAS_PAGAMENTO, FORMA_PAGAMENTO_LABEL, type FormaPagamento } from "../../types/formaPagamento";
 import { formatarDataHora, formatarMoeda } from "../../utils/formatters";
 import "./Comanda.css";
 
@@ -36,6 +37,8 @@ export function ComandaDetailPage() {
   const [registrandoPagamento, setRegistrandoPagamento] = useState(false);
   const [cancelarAberto, setCancelarAberto] = useState(false);
   const [cancelando, setCancelando] = useState(false);
+  const [formaPagamento, setFormaPagamento] = useState<FormaPagamento | "">("");
+  const [desfazendo, setDesfazendo] = useState(false);
 
   const carregar = useCallback(async () => {
     setCarregando(true);
@@ -65,6 +68,7 @@ export function ComandaDetailPage() {
       setComanda(atualizada);
       setIdProdutoNovo("");
       setQuantidadeNova(1);
+      produtoService.listar().then((lista) => setProdutos(lista.filter((p) => p.ativo)));
     } catch (error) {
       showToast("error", extrairMensagemErro(error));
     } finally {
@@ -78,6 +82,7 @@ export function ComandaDetailPage() {
     try {
       const atualizada = await comandaService.alterarItem(idComanda, idItem, { idProduto, quantidade: novaQuantidade });
       setComanda(atualizada);
+      produtoService.listar().then((lista) => setProdutos(lista.filter((p) => p.ativo)));
     } catch (error) {
       showToast("error", extrairMensagemErro(error));
     } finally {
@@ -92,6 +97,7 @@ export function ComandaDetailPage() {
       const atualizada = await comandaService.removerItem(idComanda, paraRemover);
       setComanda(atualizada);
       setParaRemover(null);
+      produtoService.listar().then((lista) => setProdutos(lista.filter((p) => p.ativo)));
     } catch (error) {
       showToast("error", extrairMensagemErro(error));
     } finally {
@@ -102,7 +108,7 @@ export function ComandaDetailPage() {
   async function handleFechar(pago: boolean) {
     setFechando(true);
     try {
-      const atualizada = await comandaService.fechar(idComanda, { pago });
+      const atualizada = await comandaService.fechar(idComanda, { pago, formaPagamento: pago ? formaPagamento || null : null });
       setComanda(atualizada);
       showToast("success", pago ? "Comanda fechada e paga." : "Comanda fechada (pagamento pendente).");
     } catch (error) {
@@ -115,13 +121,39 @@ export function ComandaDetailPage() {
   async function handleRegistrarPagamento() {
     setRegistrandoPagamento(true);
     try {
-      const atualizada = await comandaService.registrarPagamento(idComanda);
+      const atualizada = await comandaService.registrarPagamento(idComanda, { formaPagamento: formaPagamento || null });
       setComanda(atualizada);
       showToast("success", "Pagamento registrado com sucesso.");
     } catch (error) {
       showToast("error", extrairMensagemErro(error));
     } finally {
       setRegistrandoPagamento(false);
+    }
+  }
+
+  async function handleDesfazerPagamento() {
+    setDesfazendo(true);
+    try {
+      const atualizada = await comandaService.desfazerPagamento(idComanda);
+      setComanda(atualizada);
+      showToast("info", "Pagamento desfeito: estoque e financeiro foram estornados.");
+    } catch (error) {
+      showToast("error", extrairMensagemErro(error));
+    } finally {
+      setDesfazendo(false);
+    }
+  }
+
+  async function handleDesfazerFechamento() {
+    setDesfazendo(true);
+    try {
+      const atualizada = await comandaService.desfazerFechamento(idComanda);
+      setComanda(atualizada);
+      showToast("info", "Fechamento desfeito: a comanda voltou a ficar aberta.");
+    } catch (error) {
+      showToast("error", extrairMensagemErro(error));
+    } finally {
+      setDesfazendo(false);
     }
   }
 
@@ -159,6 +191,7 @@ export function ComandaDetailPage() {
         )}
         {comanda.dataFechamento && <span className="comanda-status-detalhe">Fechada em {formatarDataHora(comanda.dataFechamento)}</span>}
         {comanda.dataPagamento && <span className="comanda-status-detalhe">Pago em {formatarDataHora(comanda.dataPagamento)}</span>}
+        {comanda.formaPagamento && <span className="comanda-status-detalhe">via {FORMA_PAGAMENTO_LABEL[comanda.formaPagamento]}</span>}
       </div>
 
       {aberta && (
@@ -174,6 +207,7 @@ export function ComandaDetailPage() {
                   {produtos.map((produto) => (
                     <option key={produto.id} value={produto.id}>
                       {produto.descricao} — {formatarMoeda(produto.preco)}
+                      {produto.controlaEstoque ? ` (${produto.estoqueDisponivel} em estoque)` : ""}
                     </option>
                   ))}
                 </select>
@@ -260,23 +294,62 @@ export function ComandaDetailPage() {
       </div>
 
       {aberta && (
-        <div className="comanda-acoes-finais">
-          <button type="button" className="btn btn-secundario" onClick={() => setCancelarAberto(true)}>
-            Cancelar comanda
-          </button>
-          <button type="button" className="btn btn-secundario" disabled={fechando} onClick={() => handleFechar(false)}>
-            {fechando ? <LoadingInline /> : "Fechar (pagamento pendente)"}
-          </button>
-          <button type="button" className="btn btn-primario" disabled={fechando} onClick={() => handleFechar(true)}>
-            {fechando ? <LoadingInline /> : "Fechar e registrar pagamento"}
-          </button>
-        </div>
+        <>
+          <div className="campo comanda-forma-pagamento">
+            <label htmlFor="formaPagamento">Forma de pagamento (ao fechar pago ou registrar pagamento)</label>
+            <select id="formaPagamento" value={formaPagamento} onChange={(e) => setFormaPagamento(e.target.value as FormaPagamento | "")}>
+              <option value="">Não informada</option>
+              {FORMAS_PAGAMENTO.map((forma) => (
+                <option key={forma} value={forma}>
+                  {FORMA_PAGAMENTO_LABEL[forma]}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="comanda-acoes-finais">
+            <button type="button" className="btn btn-secundario" onClick={() => setCancelarAberto(true)}>
+              Cancelar comanda
+            </button>
+            <button type="button" className="btn btn-secundario" disabled={fechando} onClick={() => handleFechar(false)}>
+              {fechando ? <LoadingInline /> : "Fechar (pagamento pendente)"}
+            </button>
+            <button type="button" className="btn btn-primario" disabled={fechando} onClick={() => handleFechar(true)}>
+              {fechando ? <LoadingInline /> : "Fechar e registrar pagamento"}
+            </button>
+          </div>
+        </>
       )}
 
       {comanda.status === "FECHADA" && !comanda.pago && (
         <div className="comanda-acoes-finais">
+          <div className="campo comanda-forma-pagamento">
+            <label htmlFor="formaPagamentoPendente">Forma de pagamento</label>
+            <select id="formaPagamentoPendente" value={formaPagamento} onChange={(e) => setFormaPagamento(e.target.value as FormaPagamento | "")}>
+              <option value="">Não informada</option>
+              {FORMAS_PAGAMENTO.map((forma) => (
+                <option key={forma} value={forma}>
+                  {FORMA_PAGAMENTO_LABEL[forma]}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button type="button" className="btn btn-secundario" disabled={desfazendo} onClick={handleDesfazerFechamento}>
+            {desfazendo ? <LoadingInline /> : "Desfazer fechamento"}
+          </button>
           <button type="button" className="btn btn-primario" disabled={registrandoPagamento} onClick={handleRegistrarPagamento}>
             {registrandoPagamento ? <LoadingInline /> : "Registrar pagamento"}
+          </button>
+        </div>
+      )}
+
+      {comanda.status === "FECHADA" && comanda.pago && (
+        <div className="comanda-acoes-finais">
+          <button type="button" className="btn btn-secundario" disabled={desfazendo} onClick={handleDesfazerFechamento}>
+            {desfazendo ? <LoadingInline /> : "Desfazer fechamento"}
+          </button>
+          <button type="button" className="btn btn-secundario" disabled={desfazendo} onClick={handleDesfazerPagamento}>
+            {desfazendo ? <LoadingInline /> : "Desfazer pagamento"}
           </button>
         </div>
       )}

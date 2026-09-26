@@ -125,6 +125,18 @@ export function ProdutoListPage() {
             { header: "Preço", render: (item) => formatarMoeda(item.preco) },
             { header: "Preço membro", render: (item) => formatarMoeda(item.precoMembro) },
             {
+              header: "Estoque",
+              render: (item) =>
+                item.controlaEstoque ? (
+                  <span className={`badge ${item.estoqueMinimo != null && item.estoqueAtual <= item.estoqueMinimo ? "badge-vermelho" : "badge-cinza"}`}>
+                    {item.estoqueAtual}
+                    {item.estoqueMinimo != null && item.estoqueAtual <= item.estoqueMinimo ? " ⚠ baixo" : ""}
+                  </span>
+                ) : (
+                  "-"
+                ),
+            },
+            {
               header: "Situação",
               render: (item) => (
                 <span className={`badge ${item.ativo ? "badge-verde" : "badge-cinza"}`}>

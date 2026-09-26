@@ -21,6 +21,13 @@ import { CategoriaProdutoFormPage } from "./pages/categoriaProduto/CategoriaProd
 import { ComandaListPage } from "./pages/comanda/ComandaListPage";
 import { ComandaAbrirPage } from "./pages/comanda/ComandaAbrirPage";
 import { ComandaDetailPage } from "./pages/comanda/ComandaDetailPage";
+import { EstoqueConsultaPage } from "./pages/estoque/EstoqueConsultaPage";
+import { MovimentoEstoqueFormPage } from "./pages/estoque/MovimentoEstoqueFormPage";
+import { MovimentoEstoqueListPage } from "./pages/estoque/MovimentoEstoqueListPage";
+import { CategoriaFinanceiraListPage } from "./pages/categoriaFinanceira/CategoriaFinanceiraListPage";
+import { CategoriaFinanceiraFormPage } from "./pages/categoriaFinanceira/CategoriaFinanceiraFormPage";
+import { LancamentoFinanceiroListPage } from "./pages/financeiro/LancamentoFinanceiroListPage";
+import { LancamentoFinanceiroFormPage } from "./pages/financeiro/LancamentoFinanceiroFormPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 
 function App() {
@@ -64,6 +71,18 @@ function App() {
           <Route path="comandas" element={<ComandaListPage />} />
           <Route path="comandas/nova" element={<ComandaAbrirPage />} />
           <Route path="comandas/:id" element={<ComandaDetailPage />} />
+
+          <Route path="estoque" element={<EstoqueConsultaPage />} />
+          <Route path="estoque/nova" element={<MovimentoEstoqueFormPage />} />
+          <Route path="estoque/movimentos" element={<MovimentoEstoqueListPage />} />
+
+          <Route path="categorias-financeiras" element={<CategoriaFinanceiraListPage />} />
+          <Route path="categorias-financeiras/nova" element={<CategoriaFinanceiraFormPage />} />
+          <Route path="categorias-financeiras/:id/editar" element={<CategoriaFinanceiraFormPage />} />
+
+          <Route path="financeiro" element={<LancamentoFinanceiroListPage />} />
+          <Route path="financeiro/novo" element={<LancamentoFinanceiroFormPage />} />
+          <Route path="financeiro/:id/editar" element={<LancamentoFinanceiroFormPage />} />
 
           <Route path="*" element={<NotFoundPage />} />
         </Route>

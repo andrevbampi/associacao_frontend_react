@@ -15,6 +15,9 @@ function paraRequest(produto: ProdutoFormData) {
     precoMembro: produto.precoMembro,
     idCategoria: produto.idCategoria === "" ? 0 : Number(produto.idCategoria),
     ativo: produto.ativo,
+    estoqueAtual: produto.estoqueAtual === "" ? 0 : Number(produto.estoqueAtual),
+    estoqueMinimo: produto.estoqueMinimo === "" ? null : Number(produto.estoqueMinimo),
+    controlaEstoque: produto.controlaEstoque,
   };
 }
 
