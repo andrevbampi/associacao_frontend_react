@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { PageHeader } from "../../components/common/PageHeader";
 import { Loading, LoadingInline } from "../../components/common/Loading";
 import { Alert } from "../../components/common/Alert";
+import { SelectComFoto } from "../../components/common/SelectComFoto";
+import { PessoaIcone } from "../../components/common/PessoaIcone";
 import { lancamentoFinanceiroService } from "../../services/lancamentoFinanceiroService";
 import { categoriaFinanceiraService } from "../../services/categoriaFinanceiraService";
 import { caixaService } from "../../services/caixaService";
@@ -209,26 +211,24 @@ export function LancamentoFinanceiroFormPage() {
 
           <div className="campo">
             <label htmlFor="idPessoa">Pessoa (opcional)</label>
-            <select id="idPessoa" value={form.idPessoa} onChange={(e) => setForm({ ...form, idPessoa: e.target.value ? Number(e.target.value) : "" })}>
-              <option value="">Nenhuma</option>
-              {pessoas.map((pessoa) => (
-                <option key={pessoa.id} value={pessoa.id}>
-                  {pessoa.nome}
-                </option>
-              ))}
-            </select>
+            <SelectComFoto
+              id="idPessoa"
+              value={form.idPessoa}
+              onChange={(idPessoa) => setForm({ ...form, idPessoa })}
+              textoVazio="Nenhuma"
+              opcoes={pessoas.map((pessoa) => ({ value: pessoa.id, label: pessoa.nome, icone: <PessoaIcone pessoa={pessoa} /> }))}
+            />
           </div>
 
           <div className="campo">
             <label htmlFor="idMembro">Membro (opcional)</label>
-            <select id="idMembro" value={form.idMembro} onChange={(e) => setForm({ ...form, idMembro: e.target.value ? Number(e.target.value) : "" })}>
-              <option value="">Nenhum</option>
-              {membros.map((membro) => (
-                <option key={membro.id} value={membro.id}>
-                  {membro.pessoa?.nome}
-                </option>
-              ))}
-            </select>
+            <SelectComFoto
+              id="idMembro"
+              value={form.idMembro}
+              onChange={(idMembro) => setForm({ ...form, idMembro })}
+              textoVazio="Nenhum"
+              opcoes={membros.map((membro) => ({ value: membro.id, label: membro.pessoa?.nome ?? "-", icone: <PessoaIcone pessoa={membro.pessoa} /> }))}
+            />
           </div>
 
           <div className="campo campo-checkbox">

@@ -5,6 +5,7 @@ import { Loading } from "../../components/common/Loading";
 import { Alert } from "../../components/common/Alert";
 import { DataTable } from "../../components/common/DataTable";
 import { ConfirmDialog } from "../../components/common/ConfirmDialog";
+import { ProdutoIcone } from "../../components/common/ProdutoIcone";
 import { produtoService } from "../../services/produtoService";
 import { categoriaProdutoService } from "../../services/categoriaProdutoService";
 import { extrairMensagemErro } from "../../services/api";
@@ -120,6 +121,7 @@ export function ProdutoListPage() {
           keyExtractor={(item) => item.id}
           mensagemVazia="Nenhum produto encontrado para esse filtro."
           columns={[
+            { header: "", render: (item) => <ProdutoIcone produto={item} /> },
             { header: "Descrição", render: (item) => item.descricao },
             { header: "Categoria", render: (item) => item.categoria?.descricao ?? "-" },
             { header: "Preço", render: (item) => formatarMoeda(item.preco) },

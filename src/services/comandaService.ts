@@ -12,9 +12,11 @@ export interface ComandaFiltro {
   status?: StatusComanda;
   idPessoa?: number;
   nomeTemporario?: string;
-  dataAbertura?: string;
+  dataAberturaInicio?: string;
+  dataAberturaFim?: string;
   pago?: boolean;
-  dataPagamento?: string;
+  dataPagamentoInicio?: string;
+  dataPagamentoFim?: string;
 }
 
 export const comandaService = {

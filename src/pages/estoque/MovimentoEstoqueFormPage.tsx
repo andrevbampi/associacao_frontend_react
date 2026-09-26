@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { PageHeader } from "../../components/common/PageHeader";
 import { Loading, LoadingInline } from "../../components/common/Loading";
 import { Alert } from "../../components/common/Alert";
+import { SelectComFoto } from "../../components/common/SelectComFoto";
+import { ProdutoIcone } from "../../components/common/ProdutoIcone";
 import { estoqueService } from "../../services/estoqueService";
 import { produtoService } from "../../services/produtoService";
 import { categoriaFinanceiraService } from "../../services/categoriaFinanceiraService";
@@ -79,14 +81,17 @@ export function MovimentoEstoqueFormPage() {
             {produtos.length === 0 ? (
               <span className="campo-ajuda">Nenhum produto ativo com controle de estoque encontrado.</span>
             ) : (
-              <select id="idProduto" value={form.idProduto} onChange={(e) => setForm({ ...form, idProduto: e.target.value ? Number(e.target.value) : "" })} required>
-                <option value="">Selecione...</option>
-                {produtos.map((produto) => (
-                  <option key={produto.id} value={produto.id}>
-                    {produto.descricao} (estoque atual: {produto.estoqueAtual})
-                  </option>
-                ))}
-              </select>
+              <SelectComFoto
+                id="idProduto"
+                value={form.idProduto}
+                onChange={(idProduto) => setForm({ ...form, idProduto })}
+                placeholder="Selecione..."
+                opcoes={produtos.map((produto) => ({
+                  value: produto.id,
+                  label: `${produto.descricao} (estoque atual: ${produto.estoqueAtual})`,
+                  icone: <ProdutoIcone produto={produto} />,
+                }))}
+              />
             )}
           </div>
 
