@@ -1,5 +1,6 @@
 import type { Pessoa } from "./pessoa";
 import type { Produto } from "./produto";
+import type { FormaPagamento } from "./formaPagamento";
 
 export type StatusComanda = "ABERTA" | "FECHADA" | "CANCELADA";
 
@@ -21,6 +22,7 @@ export interface ComandaResponse {
   valorTotal: number;
   pago: boolean;
   dataPagamento: string | null;
+  formaPagamento: FormaPagamento | null;
   observacao: string | null;
   // Só vem preenchido no GET de uma comanda específica.
   itens: ItemComandaResponse[] | null;
@@ -39,4 +41,9 @@ export interface ItemComandaRequest {
 
 export interface ComandaFechamentoRequest {
   pago: boolean;
+  formaPagamento?: FormaPagamento | null;
+}
+
+export interface ComandaPagamentoRequest {
+  formaPagamento?: FormaPagamento | null;
 }

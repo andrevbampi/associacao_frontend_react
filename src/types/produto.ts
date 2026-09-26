@@ -7,6 +7,11 @@ export interface Produto {
   precoMembro: number;
   categoria: CategoriaProduto;
   ativo: boolean;
+  estoqueAtual: number;
+  estoqueMinimo: number | null;
+  controlaEstoque: boolean;
+  // Estoque atual menos o que já está reservado em comandas abertas.
+  estoqueDisponivel: number;
 }
 
 export interface ProdutoFormData {
@@ -16,6 +21,9 @@ export interface ProdutoFormData {
   precoMembro: number | "";
   idCategoria: number | "";
   ativo: boolean;
+  estoqueAtual: number | "";
+  estoqueMinimo: number | "";
+  controlaEstoque: boolean;
 }
 
 export const produtoVazio: ProdutoFormData = {
@@ -24,4 +32,7 @@ export const produtoVazio: ProdutoFormData = {
   precoMembro: "",
   idCategoria: "",
   ativo: true,
+  estoqueAtual: 0,
+  estoqueMinimo: "",
+  controlaEstoque: true,
 };

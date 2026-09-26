@@ -43,6 +43,9 @@ export function ProdutoFormPage() {
             precoMembro: item.precoMembro,
             idCategoria: item.categoria.id,
             ativo: item.ativo,
+            estoqueAtual: item.estoqueAtual,
+            estoqueMinimo: item.estoqueMinimo ?? "",
+            controlaEstoque: item.controlaEstoque,
           });
         }
       } catch (error) {
@@ -162,7 +165,7 @@ export function ProdutoFormPage() {
             />
           </div>
 
-          <div className="campo campo-checkbox campo-largo">
+          <div className="campo campo-checkbox">
             <input
               id="ativo"
               type="checkbox"
@@ -170,6 +173,47 @@ export function ProdutoFormPage() {
               onChange={(e) => setForm({ ...form, ativo: e.target.checked })}
             />
             <label htmlFor="ativo">Produto ativo</label>
+          </div>
+
+          <div className="campo campo-checkbox">
+            <input
+              id="controlaEstoque"
+              type="checkbox"
+              checked={form.controlaEstoque}
+              onChange={(e) => setForm({ ...form, controlaEstoque: e.target.checked })}
+            />
+            <label htmlFor="controlaEstoque">Controla estoque</label>
+          </div>
+
+          {emEdicao ? (
+            <div className="campo">
+              <label htmlFor="estoqueAtual">Estoque atual</label>
+              <input id="estoqueAtual" type="number" value={form.estoqueAtual} disabled />
+              <span className="campo-ajuda">Para alterar, lance uma movimentação em "Estoque".</span>
+            </div>
+          ) : (
+            <div className="campo">
+              <label htmlFor="estoqueAtual">Estoque inicial</label>
+              <input
+                id="estoqueAtual"
+                type="number"
+                min="0"
+                value={form.estoqueAtual}
+                onChange={(e) => setForm({ ...form, estoqueAtual: e.target.value === "" ? "" : Number(e.target.value) })}
+              />
+            </div>
+          )}
+
+          <div className="campo">
+            <label htmlFor="estoqueMinimo">Estoque mínimo</label>
+            <input
+              id="estoqueMinimo"
+              type="number"
+              min="0"
+              value={form.estoqueMinimo}
+              onChange={(e) => setForm({ ...form, estoqueMinimo: e.target.value === "" ? "" : Number(e.target.value) })}
+            />
+            <span className="campo-ajuda">Usado para alertar quando o estoque estiver baixo.</span>
           </div>
         </div>
 

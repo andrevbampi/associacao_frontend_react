@@ -7,6 +7,8 @@ import "./Layout.css";
 const LINKS = [
   { to: "/", label: "Início", fim: true, icone: "🏠" },
   { to: "/comandas", label: "Comandas", icone: "🧾" },
+  { to: "/estoque", label: "Estoque", icone: "📦" },
+  { to: "/financeiro", label: "Financeiro", icone: "💰" },
 ];
 
 const LINKS_CADASTROS = [
@@ -17,6 +19,7 @@ const LINKS_CADASTROS = [
   { to: "/tipos-evento", label: "Tipos de Evento", icone: "📌" },
   { to: "/produtos", label: "Produtos", icone: "🛒" },
   { to: "/categorias-produto", label: "Categorias de Produto", icone: "🗂️" },
+  { to: "/categorias-financeiras", label: "Categorias Financeiras", icone: "🏦" },
 ];
 
 export function Layout() {

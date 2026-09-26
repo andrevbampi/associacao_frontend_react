@@ -2,6 +2,7 @@ import { api } from "./api";
 import type {
   ComandaAberturaRequest,
   ComandaFechamentoRequest,
+  ComandaPagamentoRequest,
   ComandaResponse,
   ItemComandaRequest,
   StatusComanda,
@@ -52,8 +53,18 @@ export const comandaService = {
     return data;
   },
 
-  async registrarPagamento(idComanda: number): Promise<ComandaResponse> {
-    const { data } = await api.put<ComandaResponse>(`/comanda/${idComanda}/pagamento`, {});
+  async registrarPagamento(idComanda: number, request: ComandaPagamentoRequest = {}): Promise<ComandaResponse> {
+    const { data } = await api.put<ComandaResponse>(`/comanda/${idComanda}/pagamento`, request);
+    return data;
+  },
+
+  async desfazerPagamento(idComanda: number): Promise<ComandaResponse> {
+    const { data } = await api.put<ComandaResponse>(`/comanda/${idComanda}/desfazer-pagamento`, {});
+    return data;
+  },
+
+  async desfazerFechamento(idComanda: number): Promise<ComandaResponse> {
+    const { data } = await api.put<ComandaResponse>(`/comanda/${idComanda}/desfazer-fechamento`, {});
     return data;
   },
 
