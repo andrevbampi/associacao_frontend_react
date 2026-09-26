@@ -1,14 +1,18 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PageHeader } from "../../components/common/PageHeader";
 import { Loading } from "../../components/common/Loading";
 import { Alert } from "../../components/common/Alert";
 import { LoadingInline } from "../../components/common/Loading";
+import { ConfirmDialog } from "../../components/common/ConfirmDialog";
+import { ImagemAutenticada } from "../../components/common/ImagemAutenticada";
 import { pessoaService } from "../../services/pessoaService";
+import { documentoPessoaService } from "../../services/documentoPessoaService";
 import { extrairMensagemErro } from "../../services/api";
 import { useToast } from "../../context/ToastContext";
 import { pessoaVazia, TIPO_PESSOA_FISICA, TIPO_PESSOA_JURIDICA, type PessoaFormData } from "../../types/pessoa";
-import { paraDataInput } from "../../utils/formatters";
+import type { DocumentoPessoa } from "../../types/documentoPessoa";
+import { paraDataInput, formatarDataHora } from "../../utils/formatters";
 import { mascararDocumento, validarDocumento } from "../../utils/documento";
 
 export function PessoaFormPage() {
@@ -21,6 +25,15 @@ export function PessoaFormPage() {
   const [carregando, setCarregando] = useState(emEdicao);
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
+  const [temFoto, setTemFoto] = useState(false);
+  const [enviandoFoto, setEnviandoFoto] = useState(false);
+  const [removendoFotoAberto, setRemovendoFotoAberto] = useState(false);
+  const [removendoFoto, setRemovendoFoto] = useState(false);
+
+  const [documentos, setDocumentos] = useState<DocumentoPessoa[]>([]);
+  const [enviandoDocumento, setEnviandoDocumento] = useState(false);
+  const [documentoParaExcluir, setDocumentoParaExcluir] = useState<DocumentoPessoa | null>(null);
+  const [excluindoDocumento, setExcluindoDocumento] = useState(false);
 
   useEffect(() => {
     if (!emEdicao) return;
@@ -36,6 +49,8 @@ export function PessoaFormPage() {
           return;
         }
         setForm({ ...pessoa, dataNascimento: paraDataInput(pessoa.dataNascimento) });
+        setTemFoto(pessoa.temFoto);
+        setDocumentos(await documentoPessoaService.listar(pessoa.id));
       } catch (error) {
         setErro(extrairMensagemErro(error));
       } finally {
@@ -64,6 +79,8 @@ export function PessoaFormPage() {
       email: form.email || null,
       endereco: form.endereco || null,
     };
+    // temFoto é só leitura (derivado no back-end); não faz sentido reenviá-lo.
+    delete (payload as Partial<PessoaFormData>).temFoto;
 
     try {
       if (emEdicao) {
@@ -81,6 +98,78 @@ export function PessoaFormPage() {
     }
   }
 
+  async function handleUploadFoto(event: ChangeEvent<HTMLInputElement>) {
+    const arquivo = event.target.files?.[0];
+    event.target.value = "";
+    if (!arquivo || !id) return;
+
+    setEnviandoFoto(true);
+    try {
+      await pessoaService.uploadFoto(Number(id), arquivo);
+      setTemFoto(true);
+      showToast("success", "Foto atualizada com sucesso.");
+    } catch (error) {
+      showToast("error", extrairMensagemErro(error));
+    } finally {
+      setEnviandoFoto(false);
+    }
+  }
+
+  async function confirmarRemocaoFoto() {
+    if (!id) return;
+    setRemovendoFoto(true);
+    try {
+      await pessoaService.removerFoto(Number(id));
+      setTemFoto(false);
+      setRemovendoFotoAberto(false);
+      showToast("success", "Foto removida.");
+    } catch (error) {
+      showToast("error", extrairMensagemErro(error));
+    } finally {
+      setRemovendoFoto(false);
+    }
+  }
+
+  async function handleUploadDocumento(event: ChangeEvent<HTMLInputElement>) {
+    const arquivo = event.target.files?.[0];
+    event.target.value = "";
+    if (!arquivo || !id) return;
+
+    setEnviandoDocumento(true);
+    try {
+      const novo = await documentoPessoaService.upload(Number(id), arquivo);
+      setDocumentos((atual) => [novo, ...atual]);
+      showToast("success", "Documento enviado com sucesso.");
+    } catch (error) {
+      showToast("error", extrairMensagemErro(error));
+    } finally {
+      setEnviandoDocumento(false);
+    }
+  }
+
+  async function handleBaixarDocumento(documento: DocumentoPessoa) {
+    try {
+      await documentoPessoaService.baixar(documento.id, documento.nomeOriginal);
+    } catch (error) {
+      showToast("error", extrairMensagemErro(error));
+    }
+  }
+
+  async function confirmarExclusaoDocumento() {
+    if (!documentoParaExcluir) return;
+    setExcluindoDocumento(true);
+    try {
+      await documentoPessoaService.remover(documentoParaExcluir.id);
+      setDocumentos((atual) => atual.filter((d) => d.id !== documentoParaExcluir.id));
+      showToast("success", "Documento removido.");
+      setDocumentoParaExcluir(null);
+    } catch (error) {
+      showToast("error", extrairMensagemErro(error));
+    } finally {
+      setExcluindoDocumento(false);
+    }
+  }
+
   if (carregando) return <Loading texto="Carregando dados da pessoa..." />;
 
   return (
@@ -91,6 +180,32 @@ export function PessoaFormPage() {
 
       <form className="form-card" onSubmit={handleSubmit}>
         <div className="form-grid">
+          <div className="campo campo-largo">
+            <label>Foto</label>
+            {emEdicao ? (
+              <div className="foto-linha">
+                {temFoto ? (
+                  <ImagemAutenticada src={`/pessoa/${id}/foto`} alt="Foto da pessoa" className="foto-thumbnail" />
+                ) : (
+                  <span className="campo-ajuda">Nenhuma foto cadastrada ainda.</span>
+                )}
+                <div className="foto-acoes">
+                  <label className="btn btn-secundario btn-sm">
+                    {enviandoFoto ? <LoadingInline /> : temFoto ? "Trocar foto" : "Enviar foto"}
+                    <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden onChange={handleUploadFoto} disabled={enviandoFoto} />
+                  </label>
+                  {temFoto && (
+                    <button type="button" className="btn btn-perigo btn-sm" onClick={() => setRemovendoFotoAberto(true)} disabled={enviandoFoto}>
+                      Remover
+                    </button>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <span className="campo-ajuda">Salve a pessoa primeiro para poder adicionar uma foto.</span>
+            )}
+          </div>
+
           <div className="campo campo-largo">
             <label htmlFor="nome">Nome *</label>
             <input
@@ -184,6 +299,79 @@ export function PessoaFormPage() {
           </button>
         </div>
       </form>
+
+      {emEdicao && (
+        <div className="form-card">
+          <h2 className="membro-detalhe-subtitulo">Documentos</h2>
+
+          <label className="btn btn-secundario btn-sm">
+            {enviandoDocumento ? <LoadingInline /> : "+ Enviar documento"}
+            <input type="file" accept=".pdf,image/jpeg,image/png,image/webp,image/gif" hidden onChange={handleUploadDocumento} disabled={enviandoDocumento} />
+          </label>
+          <p className="campo-ajuda">Formatos aceitos: PDF, JPG, JPEG, PNG, WEBP ou GIF.</p>
+
+          {documentos.length === 0 ? (
+            <div className="tabela-vazia">
+              <p>Nenhum documento enviado ainda.</p>
+            </div>
+          ) : (
+            <div className="tabela-container">
+              <table className="tabela">
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Tamanho</th>
+                    <th>Enviado em</th>
+                    <th>Por</th>
+                    <th className="col-acoes"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {documentos.map((documento) => (
+                    <tr key={documento.id}>
+                      <td>{documento.nomeOriginal}</td>
+                      <td>{(documento.tamanho / 1024).toFixed(0)} KB</td>
+                      <td>{formatarDataHora(documento.dataUpload)}</td>
+                      <td>{documento.usuarioUpload.pessoa?.nome ?? documento.usuarioUpload.login}</td>
+                      <td className="col-acoes">
+                        <button type="button" className="btn btn-secundario btn-sm btn-icone" title="Baixar" onClick={() => handleBaixarDocumento(documento)}>
+                          ⬇
+                        </button>{" "}
+                        <button
+                          type="button"
+                          className="btn btn-perigo btn-sm btn-icone"
+                          title="Excluir"
+                          onClick={() => setDocumentoParaExcluir(documento)}
+                        >
+                          🗑
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      <ConfirmDialog
+        aberto={removendoFotoAberto}
+        titulo="Remover foto"
+        mensagem="Tem certeza de que deseja remover a foto desta pessoa?"
+        carregando={removendoFoto}
+        onCancelar={() => setRemovendoFotoAberto(false)}
+        onConfirmar={confirmarRemocaoFoto}
+      />
+
+      <ConfirmDialog
+        aberto={documentoParaExcluir !== null}
+        titulo="Excluir documento"
+        mensagem={`Tem certeza de que deseja excluir o documento "${documentoParaExcluir?.nomeOriginal}"?`}
+        carregando={excluindoDocumento}
+        onCancelar={() => setDocumentoParaExcluir(null)}
+        onConfirmar={confirmarExclusaoDocumento}
+      />
     </div>
   );
 }

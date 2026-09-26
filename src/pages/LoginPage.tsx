@@ -1,8 +1,11 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { Alert } from "../components/common/Alert";
 import { LoadingInline } from "../components/common/Loading";
+import { publicConfigService } from "../services/publicConfigService";
+import { apiBaseUrl } from "../services/api";
+import type { PublicConfig } from "../types/publicConfig";
 import "./LoginPage.css";
 
 export function LoginPage() {
@@ -14,6 +17,11 @@ export function LoginPage() {
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const [entrando, setEntrando] = useState(false);
+  const [config, setConfig] = useState<PublicConfig | null>(null);
+
+  useEffect(() => {
+    publicConfigService.buscar().then(setConfig).catch(() => {});
+  }, []);
 
   if (autenticado) {
     const destino = (location.state as { from?: Location })?.from?.pathname ?? "/";
@@ -39,8 +47,12 @@ export function LoginPage() {
     <div className="login-pagina">
       <form className="login-card" onSubmit={handleSubmit}>
         <div className="login-marca">
-          <span className="login-marca-icone">🌿</span>
-          <h1>Associação</h1>
+          {config?.logoUrl ? (
+            <img src={`${apiBaseUrl}${config.logoUrl}`} alt="Logo" className="login-marca-logo" />
+          ) : (
+            <span className="login-marca-icone">🌿</span>
+          )}
+          <h1>{config?.nomeAssociacao ?? "Associação"}</h1>
         </div>
         <p className="login-subtitulo">Entre com seu login e senha para continuar.</p>
 

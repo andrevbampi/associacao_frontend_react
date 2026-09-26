@@ -233,6 +233,40 @@ button {
   border-top: 1px solid var(--color-border);
 }
 
+/* Fotos e logo (thumbnails + ações de upload/remoção) */
+.foto-linha,
+.parametro-logo-linha {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.foto-thumbnail,
+.parametro-logo-preview {
+  width: 96px;
+  height: 96px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  border: 1px solid var(--color-border);
+  background: #fff;
+}
+
+.parametro-logo-preview {
+  width: auto;
+  max-width: 160px;
+  height: 64px;
+  object-fit: contain;
+  padding: 0.35rem;
+}
+
+.foto-acoes,
+.parametro-logo-acoes {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 /* Badges */
 .badge {
   display: inline-flex;

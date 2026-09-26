@@ -30,6 +30,12 @@
   font-size: 1.8rem;
 }
 
+.login-marca-logo {
+  max-height: 42px;
+  max-width: 120px;
+  object-fit: contain;
+}
+
 .login-marca h1 {
   margin: 0;
   font-size: 1.4rem;

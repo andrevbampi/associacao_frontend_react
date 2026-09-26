@@ -12,6 +12,7 @@ export interface Produto {
   controlaEstoque: boolean;
   // Estoque atual menos o que já está reservado em comandas abertas.
   estoqueDisponivel: number;
+  temFoto: boolean;
 }
 
 export interface ProdutoFormData {
