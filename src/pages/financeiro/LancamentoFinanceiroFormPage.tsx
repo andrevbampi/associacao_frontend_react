@@ -5,12 +5,14 @@ import { Loading, LoadingInline } from "../../components/common/Loading";
 import { Alert } from "../../components/common/Alert";
 import { lancamentoFinanceiroService } from "../../services/lancamentoFinanceiroService";
 import { categoriaFinanceiraService } from "../../services/categoriaFinanceiraService";
+import { caixaService } from "../../services/caixaService";
 import { pessoaService } from "../../services/pessoaService";
 import { membroService } from "../../services/membroService";
 import { extrairMensagemErro } from "../../services/api";
 import { useToast } from "../../context/ToastContext";
 import { lancamentoFinanceiroVazio, type LancamentoFinanceiroFormData, type TipoLancamento } from "../../types/lancamentoFinanceiro";
 import type { CategoriaFinanceira } from "../../types/categoriaFinanceira";
+import type { Caixa } from "../../types/caixa";
 import type { Pessoa } from "../../types/pessoa";
 import type { MembroResponse } from "../../types/membro";
 import { FORMAS_PAGAMENTO, FORMA_PAGAMENTO_LABEL } from "../../types/formaPagamento";
@@ -23,6 +25,7 @@ export function LancamentoFinanceiroFormPage() {
 
   const [form, setForm] = useState<LancamentoFinanceiroFormData>(lancamentoFinanceiroVazio);
   const [categorias, setCategorias] = useState<CategoriaFinanceira[]>([]);
+  const [caixas, setCaixas] = useState<Caixa[]>([]);
   const [pessoas, setPessoas] = useState<Pessoa[]>([]);
   const [membros, setMembros] = useState<MembroResponse[]>([]);
   const [carregando, setCarregando] = useState(true);
@@ -34,14 +37,20 @@ export function LancamentoFinanceiroFormPage() {
       setCarregando(true);
       setErro(null);
       try {
-        const [categoriasResp, pessoasResp, membrosResp] = await Promise.all([
+        const [categoriasResp, caixasResp, pessoasResp, membrosResp] = await Promise.all([
           categoriaFinanceiraService.listar(),
+          caixaService.listar(),
           pessoaService.listar(),
           membroService.listar(),
         ]);
         setCategorias(categoriasResp);
+        setCaixas(caixasResp);
         setPessoas(pessoasResp);
         setMembros(membrosResp);
+
+        if (!emEdicao && caixasResp.length === 1) {
+          setForm((atual) => ({ ...atual, idCaixa: caixasResp[0].id }));
+        }
 
         if (emEdicao) {
           const lista = await lancamentoFinanceiroService.listar();
@@ -53,6 +62,7 @@ export function LancamentoFinanceiroFormPage() {
           setForm({
             id: item.id,
             idCategoriaFinanceira: item.categoriaFinanceira.id,
+            idCaixa: item.caixa.id,
             tipo: item.tipo,
             valor: item.valor,
             data: item.data,
@@ -82,6 +92,10 @@ export function LancamentoFinanceiroFormPage() {
 
     if (form.idCategoriaFinanceira === "") {
       setErro("Selecione a categoria.");
+      return;
+    }
+    if (form.idCaixa === "") {
+      setErro("Selecione o caixa.");
       return;
     }
     if (form.valor === "" || Number(form.valor) <= 0) {
@@ -143,6 +157,27 @@ export function LancamentoFinanceiroFormPage() {
                 {categoriasDoTipo.map((categoria) => (
                   <option key={categoria.id} value={categoria.id}>
                     {categoria.descricao}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+
+          <div className="campo">
+            <label htmlFor="idCaixa">Caixa *</label>
+            {caixas.length === 0 ? (
+              <span className="campo-ajuda">Nenhum caixa cadastrado. Cadastre um em "Caixas" antes de continuar.</span>
+            ) : (
+              <select
+                id="idCaixa"
+                value={form.idCaixa}
+                onChange={(e) => setForm({ ...form, idCaixa: e.target.value ? Number(e.target.value) : "" })}
+                required
+              >
+                <option value="">Selecione...</option>
+                {caixas.map((caixa) => (
+                  <option key={caixa.id} value={caixa.id}>
+                    {caixa.nome}
                   </option>
                 ))}
               </select>

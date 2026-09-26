@@ -42,8 +42,10 @@ export interface ItemComandaRequest {
 export interface ComandaFechamentoRequest {
   pago: boolean;
   formaPagamento?: FormaPagamento | null;
+  idCaixa?: number | null;
 }
 
 export interface ComandaPagamentoRequest {
   formaPagamento?: FormaPagamento | null;
+  idCaixa?: number | null;
 }

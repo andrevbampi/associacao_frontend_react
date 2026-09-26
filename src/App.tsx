@@ -28,6 +28,9 @@ import { CategoriaFinanceiraListPage } from "./pages/categoriaFinanceira/Categor
 import { CategoriaFinanceiraFormPage } from "./pages/categoriaFinanceira/CategoriaFinanceiraFormPage";
 import { LancamentoFinanceiroListPage } from "./pages/financeiro/LancamentoFinanceiroListPage";
 import { LancamentoFinanceiroFormPage } from "./pages/financeiro/LancamentoFinanceiroFormPage";
+import { CaixaListPage } from "./pages/caixa/CaixaListPage";
+import { CaixaFormPage } from "./pages/caixa/CaixaFormPage";
+import { ParametroSistemaPage } from "./pages/parametroSistema/ParametroSistemaPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 
 function App() {
@@ -83,6 +86,12 @@ function App() {
           <Route path="financeiro" element={<LancamentoFinanceiroListPage />} />
           <Route path="financeiro/novo" element={<LancamentoFinanceiroFormPage />} />
           <Route path="financeiro/:id/editar" element={<LancamentoFinanceiroFormPage />} />
+
+          <Route path="caixas" element={<CaixaListPage />} />
+          <Route path="caixas/novo" element={<CaixaFormPage />} />
+          <Route path="caixas/:id/editar" element={<CaixaFormPage />} />
+
+          <Route path="parametros" element={<ParametroSistemaPage />} />
 
           <Route path="*" element={<NotFoundPage />} />
         </Route>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
+import { useParametros } from "../../context/ParametrosContext";
 import "./Layout.css";
 
 const LINKS = [
@@ -20,12 +21,15 @@ const LINKS_CADASTROS = [
   { to: "/produtos", label: "Produtos", icone: "🛒" },
   { to: "/categorias-produto", label: "Categorias de Produto", icone: "🗂️" },
   { to: "/categorias-financeiras", label: "Categorias Financeiras", icone: "🏦" },
+  { to: "/caixas", label: "Caixas", icone: "🗄️" },
+  { to: "/parametros", label: "Parâmetros do Sistema", icone: "⚙️" },
 ];
 
 export function Layout() {
   const [menuAberto, setMenuAberto] = useState(false);
   const { usuario, logout } = useAuth();
   const { showToast } = useToast();
+  const { nomeAssociacao } = useParametros();
 
   function handleLogout() {
     logout();
@@ -43,14 +47,14 @@ export function Layout() {
         >
           ☰
         </button>
-        <span className="topbar-titulo">Associação</span>
+        <span className="topbar-titulo">{nomeAssociacao}</span>
       </header>
 
       <div className="layout-corpo">
         <nav className={`sidebar ${menuAberto ? "sidebar-aberta" : ""}`}>
           <div className="sidebar-marca">
             <span className="sidebar-marca-icone">🌿</span>
-            <span>Associação</span>
+            <span>{nomeAssociacao}</span>
           </div>
           <ul className="sidebar-lista">
             {LINKS.map((link) => (

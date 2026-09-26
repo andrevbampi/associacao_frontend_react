@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useParametros } from "../context/ParametrosContext";
 import "./Dashboard.css";
 
 const CARDS = [
@@ -29,10 +30,12 @@ const CARDS = [
 ];
 
 export function Dashboard() {
+  const { nomeAssociacao } = useParametros();
+
   return (
     <div>
       <div className="dashboard-intro">
-        <h1>Bem-vindo(a) 🌿</h1>
+        <h1>Bem-vindo(a) à {nomeAssociacao} 🌿</h1>
         <p>Escolha uma área para gerenciar os dados da associação.</p>
       </div>
       <div className="dashboard-grid">
