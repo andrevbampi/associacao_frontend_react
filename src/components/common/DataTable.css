@@ -1,9 +1,21 @@
 .tabela-container {
-  background: var(--color-surface);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   overflow-x: auto;
   border: 1px solid var(--color-border);
+  -webkit-overflow-scrolling: touch;
+  /* Sombra nas bordas esquerda/direita quando há mais conteúdo pra rolar —
+     some sozinha conforme a rolagem chega em cada ponta. Truque padrão com
+     4 gradientes (2 fixos ao conteúdo, 2 fixos à viewport do scroll). */
+  background:
+    linear-gradient(to right, var(--color-surface) 30%, rgba(255, 255, 255, 0)),
+    linear-gradient(to right, rgba(255, 255, 255, 0), var(--color-surface) 70%) 100% 0,
+    linear-gradient(to right, rgba(27, 94, 32, 0.18), rgba(255, 255, 255, 0)),
+    linear-gradient(to left, rgba(27, 94, 32, 0.18), rgba(255, 255, 255, 0)) 100% 0;
+  background-repeat: no-repeat;
+  background-color: var(--color-surface);
+  background-size: 24px 100%, 24px 100%, 10px 100%, 10px 100%;
+  background-attachment: local, local, scroll, scroll;
 }
 
 .tabela {

@@ -44,6 +44,7 @@ export interface MovimentoEstoqueFormData {
   gerarLancamentoFinanceiro: boolean;
   idCategoriaFinanceira: number | "";
   valorLancamento: number | "";
+  idCaixa: number | "";
 }
 
 export const movimentoEstoqueVazio: MovimentoEstoqueFormData = {
@@ -55,4 +56,5 @@ export const movimentoEstoqueVazio: MovimentoEstoqueFormData = {
   gerarLancamentoFinanceiro: false,
   idCategoriaFinanceira: "",
   valorLancamento: "",
+  idCaixa: "",
 };

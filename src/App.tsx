@@ -34,6 +34,7 @@ import { ParametroSistemaPage } from "./pages/parametroSistema/ParametroSistemaP
 import { AtaListPage } from "./pages/ata/AtaListPage";
 import { AtaFormPage } from "./pages/ata/AtaFormPage";
 import { RelatorioConsumoProdutosPage } from "./pages/relatorio/RelatorioConsumoProdutosPage";
+import { RelatorioLivroCaixaPage } from "./pages/relatorio/RelatorioLivroCaixaPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 
 function App() {
@@ -101,6 +102,7 @@ function App() {
           <Route path="atas/:id/editar" element={<AtaFormPage />} />
 
           <Route path="relatorios/consumo-produtos" element={<RelatorioConsumoProdutosPage />} />
+          <Route path="relatorios/livro-caixa" element={<RelatorioLivroCaixaPage />} />
 
           <Route path="*" element={<NotFoundPage />} />
         </Route>

@@ -1,5 +1,6 @@
 export interface RelatorioConsumoProdutoLinha {
   mes: string | null;
+  dia: string | null;
   pessoa: string | null;
   idProduto: number;
   produto: string;
@@ -25,6 +26,36 @@ export interface RelatorioConsumoProdutoFiltro {
   idCategoriaProduto?: number;
   status?: "ABERTA" | "FECHADA";
   agruparPorMes?: boolean;
+  agruparPorDia?: boolean;
   agruparPorPessoa?: boolean;
   agruparPorStatus?: boolean;
+}
+
+export type TipoLinhaLivroCaixa = "DETALHE" | "COMANDAS" | "MENSALIDADES";
+
+export interface RelatorioLivroCaixaLinha {
+  tipoLinha: TipoLinhaLivroCaixa;
+  caixa: string | null;
+  mes: string | null;
+  data: string | null;
+  descricao: string;
+  categoria: string | null;
+  valorEntrada: number;
+  valorSaida: number;
+  observacao: string | null;
+}
+
+export interface RelatorioLivroCaixaResponse {
+  linhas: RelatorioLivroCaixaLinha[];
+  totalEntradasGeral: number;
+  totalSaidasGeral: number;
+  saldoGeral: number;
+}
+
+export interface RelatorioLivroCaixaFiltro {
+  idCaixa?: number;
+  dataInicio?: string;
+  dataFim?: string;
+  agruparPorCaixa?: boolean;
+  agruparPorMes?: boolean;
 }

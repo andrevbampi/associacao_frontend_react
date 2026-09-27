@@ -1,6 +1,6 @@
 import type { RelatorioConsumoProdutoLinha } from "../types/relatorio";
 
-export type NivelSubtotal = "mes" | "pessoa" | "produto";
+export type NivelSubtotal = "mes" | "dia" | "pessoa" | "produto";
 
 export interface LinhaExibicaoDado {
   tipo: "dado";
@@ -18,10 +18,11 @@ export interface LinhaExibicaoSubtotal {
 
 export type LinhaExibicao = LinhaExibicaoDado | LinhaExibicaoSubtotal;
 
-type NivelChave = "mes" | "pessoa" | "produto" | "status";
+type NivelChave = "mes" | "dia" | "pessoa" | "produto" | "status";
 
 const ROTULO_NIVEL: Record<NivelSubtotal, string> = {
   mes: "Subtotal do mês",
+  dia: "Subtotal do dia",
   pessoa: "Subtotal da pessoa",
   produto: "Subtotal do produto",
 };
@@ -30,6 +31,8 @@ function chaveDoNivel(linha: RelatorioConsumoProdutoLinha, nivel: NivelChave): s
   switch (nivel) {
     case "mes":
       return linha.mes ?? "";
+    case "dia":
+      return linha.dia ?? "";
     case "pessoa":
       return linha.pessoa ?? "";
     case "produto":
@@ -43,6 +46,8 @@ function rotuloDoNivel(linha: RelatorioConsumoProdutoLinha, nivel: NivelSubtotal
   switch (nivel) {
     case "mes":
       return linha.mes ?? "(sem mês)";
+    case "dia":
+      return linha.dia ?? "(sem dia)";
     case "pessoa":
       return linha.pessoa ?? "(sem pessoa)";
     case "produto":
@@ -55,20 +60,23 @@ function rotuloDoNivel(linha: RelatorioConsumoProdutoLinha, nivel: NivelSubtotal
  * agrupamento ativo — exceto o nível mais interno, que já É a granularidade
  * das próprias linhas (um subtotal dele seria idêntico à linha).
  *
- * A prioridade dos níveis é sempre mês > pessoa > produto > status (mesma do
- * back-end, que já devolve as linhas ordenadas nessa ordem). Como Produto
- * está sempre presente, ele só vira um nível de subtotal quando existe algo
- * mais interno que ele — ou seja, quando "Status da comanda" está marcado.
+ * A prioridade dos níveis é sempre mês > pessoa > dia > produto > status
+ * (mesma do back-end, que já devolve as linhas ordenadas nessa ordem). Como
+ * Produto está sempre presente, ele só vira um nível de subtotal quando
+ * existe algo mais interno que ele — ou seja, quando "Status da comanda"
+ * está marcado.
  */
 export function montarLinhasComSubtotais(
   linhas: RelatorioConsumoProdutoLinha[],
   agruparPorMes: boolean,
   agruparPorPessoa: boolean,
+  agruparPorDia: boolean,
   agruparPorStatus: boolean
 ): LinhaExibicao[] {
   const niveis: NivelChave[] = [];
   if (agruparPorMes) niveis.push("mes");
   if (agruparPorPessoa) niveis.push("pessoa");
+  if (agruparPorDia) niveis.push("dia");
   niveis.push("produto");
   if (agruparPorStatus) niveis.push("status");
 

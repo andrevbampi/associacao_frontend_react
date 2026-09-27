@@ -16,7 +16,7 @@ import type { Produto } from "../../types/produto";
 import type { CategoriaProduto } from "../../types/categoriaProduto";
 import { formatarMoeda } from "../../utils/formatters";
 import { montarLinhasComSubtotais } from "../../utils/relatorioSubtotais";
-import "./RelatorioConsumoProdutosPage.css";
+import "./Relatorio.css";
 
 const STATUS_LABEL: Record<string, string> = {
   ABERTA: "Aberta",
@@ -37,6 +37,7 @@ export function RelatorioConsumoProdutosPage() {
   const [idCategoriaProduto, setIdCategoriaProduto] = useState<number | "">("");
   const [status, setStatus] = useState<"" | "ABERTA" | "FECHADA">("");
   const [agruparPorMes, setAgruparPorMes] = useState(false);
+  const [agruparPorDia, setAgruparPorDia] = useState(false);
   const [agruparPorPessoa, setAgruparPorPessoa] = useState(false);
   const [agruparPorStatus, setAgruparPorStatus] = useState(false);
 
@@ -64,6 +65,7 @@ export function RelatorioConsumoProdutosPage() {
         idCategoriaProduto: idCategoriaProduto === "" ? undefined : idCategoriaProduto,
         status: status === "" ? undefined : status,
         agruparPorMes,
+        agruparPorDia,
         agruparPorPessoa,
         agruparPorStatus,
       };
@@ -172,6 +174,10 @@ export function RelatorioConsumoProdutosPage() {
                 Pessoa
               </label>
               <label className="campo-checkbox-inline">
+                <input type="checkbox" checked={agruparPorDia} onChange={(e) => setAgruparPorDia(e.target.checked)} />
+                Dia da abertura
+              </label>
+              <label className="campo-checkbox-inline">
                 <input type="checkbox" checked={agruparPorStatus} onChange={(e) => setAgruparPorStatus(e.target.checked)} />
                 Status da comanda
               </label>
@@ -214,6 +220,7 @@ export function RelatorioConsumoProdutosPage() {
                   <tr>
                     {agruparPorMes && <th>Mês</th>}
                     {agruparPorPessoa && <th>Pessoa</th>}
+                    {agruparPorDia && <th>Dia</th>}
                     <th>Produto</th>
                     <th>Categoria</th>
                     {agruparPorStatus && <th>Status</th>}
@@ -222,11 +229,12 @@ export function RelatorioConsumoProdutosPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {montarLinhasComSubtotais(resultado.linhas, agruparPorMes, agruparPorPessoa, agruparPorStatus).map((item, indice) =>
+                  {montarLinhasComSubtotais(resultado.linhas, agruparPorMes, agruparPorPessoa, agruparPorDia, agruparPorStatus).map((item, indice) =>
                     item.tipo === "dado" ? (
                       <tr key={indice}>
                         {agruparPorMes && <td>{item.linha.mes}</td>}
                         {agruparPorPessoa && <td>{item.linha.pessoa}</td>}
+                        {agruparPorDia && <td>{item.linha.dia}</td>}
                         <td>{item.linha.produto}</td>
                         <td>{item.linha.categoriaProduto ?? "-"}</td>
                         {agruparPorStatus && <td>{item.linha.status ? STATUS_LABEL[item.linha.status] : "-"}</td>}
@@ -236,7 +244,7 @@ export function RelatorioConsumoProdutosPage() {
                     ) : (
                       <tr key={indice} className={`linha-subtotal linha-subtotal-${item.nivel}`}>
                         <td
-                          colSpan={2 + Number(agruparPorMes) + Number(agruparPorPessoa) + Number(agruparPorStatus)}
+                          colSpan={2 + Number(agruparPorMes) + Number(agruparPorDia) + Number(agruparPorPessoa) + Number(agruparPorStatus)}
                           style={{ paddingLeft: `${1 + item.profundidade}rem` }}
                         >
                           {item.rotulo}
@@ -249,7 +257,7 @@ export function RelatorioConsumoProdutosPage() {
                 </tbody>
                 <tfoot>
                   <tr>
-                    <td colSpan={2 + Number(agruparPorMes) + Number(agruparPorPessoa) + Number(agruparPorStatus)}>
+                    <td colSpan={2 + Number(agruparPorMes) + Number(agruparPorDia) + Number(agruparPorPessoa) + Number(agruparPorStatus)}>
                       <strong>Total geral</strong>
                     </td>
                     <td>
