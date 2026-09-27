@@ -1,0 +1,4 @@
+.linha-resumo td {
+  font-style: italic;
+  color: var(--color-text-muted);
+}

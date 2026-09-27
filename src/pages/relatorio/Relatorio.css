@@ -40,6 +40,14 @@
   border-top: 1px solid var(--color-border);
 }
 
+/* .form-card (padrão do sistema) limita a 640px, o que é bom pra formulários
+   mas aperta demais uma tabela de relatório com várias colunas. Libera até o
+   teto normal da área de conteúdo (1100px, ver .conteudo-container), sem
+   mexer no padrão de largura usado no resto do sistema. */
+.relatorio-resultado.form-card {
+  max-width: none;
+}
+
 /* Só aparece na impressão: o título e a linha de totais já bastam como
    cabeçalho do relatório impresso, sem repetir o menu/filtros da tela. */
 .relatorio-titulo-impresso {
@@ -53,12 +61,21 @@
     display: none !important;
   }
 
+  /* Paisagem + sem limite de largura: com várias colunas (datas, categoria,
+     entrada, saída, observação...) o retrato cortava as últimas colunas
+     (ex.: o valor total no Livro Caixa). */
+  @page {
+    size: landscape;
+    margin: 12mm;
+  }
+
   .layout-corpo,
   .conteudo,
   .conteudo-container {
     margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
+    max-width: none !important;
   }
 
   .relatorio-resultado {
@@ -70,5 +87,24 @@
   .relatorio-titulo-impresso {
     display: block;
     margin-bottom: 1rem;
+  }
+
+  /* Na tela a tabela pode rolar horizontalmente; impressa, tudo precisa
+     caber na página — nada de scroll nem de largura mínima forçada. */
+  .tabela-container {
+    overflow: visible !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  .tabela {
+    width: 100% !important;
+    min-width: 0 !important;
+    font-size: 0.78rem;
+  }
+
+  .tabela thead th,
+  .tabela tbody td {
+    padding: 0.4rem 0.5rem;
   }
 }

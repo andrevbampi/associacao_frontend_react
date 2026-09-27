@@ -347,6 +347,13 @@ img.avatar-mini {
   padding: 0.4rem;
 }
 
+/* Quando não há espaço embaixo (comum perto do fim da tela em celulares),
+   o painel abre para cima do campo em vez de para baixo. */
+.select-foto-painel-cima {
+  top: auto;
+  bottom: calc(100% + 0.25rem);
+}
+
 .select-foto-busca {
   width: 100%;
   border: 1px solid var(--color-border);
@@ -361,7 +368,7 @@ img.avatar-mini {
   list-style: none;
   margin: 0;
   padding: 0;
-  max-height: 220px;
+  max-height: min(220px, 45vh);
   overflow-y: auto;
 }
 
@@ -389,6 +396,106 @@ img.avatar-mini {
   padding: 0.5rem;
   font-size: 0.85rem;
   color: var(--color-text-muted);
+}
+
+/* Alvos de toque maiores em telas pequenas (o padrão de tela já bastava para
+   mouse, mas ficava apertado para dedo). */
+@media (max-width: 640px) {
+  .select-foto-opcao {
+    padding: 0.7rem 0.6rem;
+    min-height: 44px;
+  }
+
+  .select-foto-gatilho {
+    min-height: 44px;
+  }
+}
+
+/* SelectComFoto no celular: folha (bottom sheet) em vez de dropdown ancorado
+   — um painel comum nessa largura ou fica cortado perto da borda da tela, ou
+   obriga itens pequenos demais pro dedo. */
+.select-foto-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 20, 0.45);
+  z-index: 300;
+  display: flex;
+  align-items: flex-end;
+  animation: select-foto-fade-in 0.15s ease-out;
+}
+
+.select-foto-folha {
+  width: 100%;
+  max-height: 75vh;
+  background: #fff;
+  border-radius: 18px 18px 0 0;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  animation: select-foto-subir 0.2s ease-out;
+}
+
+.select-foto-folha-alca {
+  width: 40px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--color-border);
+  margin: 0.6rem auto 0.4rem;
+  flex-shrink: 0;
+}
+
+.select-foto-folha-cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem 0.6rem;
+  flex-shrink: 0;
+}
+
+.select-foto-folha-cabecalho .select-foto-busca {
+  margin-bottom: 0;
+  min-height: 44px;
+}
+
+.select-foto-folha-fechar {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: #fff;
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.select-foto-folha-lista {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: 0 0.4rem 0.6rem;
+}
+
+.select-foto-folha-lista .select-foto-lista {
+  max-height: none;
+}
+
+@keyframes select-foto-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes select-foto-subir {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 
 /* Badges */

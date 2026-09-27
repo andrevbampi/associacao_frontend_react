@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
@@ -12,22 +12,64 @@ const LINKS = [
   { to: "/comandas", label: "Comandas", icone: "🧾" },
   { to: "/estoque", label: "Estoque", icone: "📦" },
   { to: "/financeiro", label: "Financeiro", icone: "💰" },
-  { to: "/relatorios/consumo-produtos", label: "Relatórios", icone: "📊" },
 ];
 
+const LINKS_RELATORIOS = [
+  { to: "/relatorios/consumo-produtos", label: "Consumo de Produtos", icone: "📊" },
+  { to: "/relatorios/livro-caixa", label: "Livro Caixa", icone: "📒" },
+];
+
+// Entidades que a associação gerencia no dia a dia.
 const LINKS_CADASTROS = [
   { to: "/pessoas", label: "Pessoas", icone: "👤" },
   { to: "/usuarios", label: "Usuários", icone: "🔑" },
   { to: "/membros", label: "Membros", icone: "🪪" },
+  { to: "/produtos", label: "Produtos", icone: "🛒" },
+  { to: "/atas", label: "Atas", icone: "📄" },
+];
+
+// Tabelas de apoio e configuração — mexidas raramente, separadas dos
+// cadastros do dia a dia para não misturar as duas coisas numa lista só.
+const LINKS_CONFIGURACOES = [
   { to: "/status-membro", label: "Status de Membro", icone: "🏷️" },
   { to: "/tipos-evento", label: "Tipos de Evento", icone: "📌" },
-  { to: "/produtos", label: "Produtos", icone: "🛒" },
-  { to: "/categorias-produto", label: "Categorias de Produto", icone: "🗂️" },
+  { to: "/categorias-produto", label: "Categorias de Produto", icone: "📁" },
   { to: "/categorias-financeiras", label: "Categorias Financeiras", icone: "🏦" },
   { to: "/caixas", label: "Caixas", icone: "🗄️" },
-  { to: "/atas", label: "Atas", icone: "📄" },
   { to: "/parametros", label: "Parâmetros do Sistema", icone: "⚙️" },
 ];
+
+const SECOES_MENU = [
+  { titulo: "Relatórios", links: LINKS_RELATORIOS },
+  { titulo: "Cadastros", links: LINKS_CADASTROS },
+  { titulo: "Configurações", links: LINKS_CONFIGURACOES },
+];
+
+interface LinkMenu {
+  to: string;
+  label: string;
+  icone: string;
+}
+
+function SecaoMenu({ titulo, links, onNavegar }: { titulo: string; links: LinkMenu[]; onNavegar: () => void }) {
+  return (
+    <Fragment>
+      <li className="sidebar-secao">{titulo}</li>
+      {links.map((link) => (
+        <li key={link.to}>
+          <NavLink
+            to={link.to}
+            className={({ isActive }) => `sidebar-link ${isActive ? "sidebar-link-ativo" : ""}`}
+            onClick={onNavegar}
+          >
+            <span className="sidebar-link-icone">{link.icone}</span>
+            {link.label}
+          </NavLink>
+        </li>
+      ))}
+    </Fragment>
+  );
+}
 
 export function Layout() {
   const [menuAberto, setMenuAberto] = useState(false);
@@ -39,6 +81,18 @@ export function Layout() {
     logout();
     showToast("info", "Sessão encerrada.");
   }
+
+  // Trava o scroll da página por trás enquanto o menu mobile está aberto —
+  // sem isso, um arraste que começasse sobre o overlay podia rolar o
+  // conteúdo de baixo em vez de (ou além de) navegar dentro do menu.
+  useEffect(() => {
+    if (!menuAberto) return;
+    const overflowOriginal = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = overflowOriginal;
+    };
+  }, [menuAberto]);
 
   return (
     <div className="layout">
@@ -79,18 +133,8 @@ export function Layout() {
               </li>
             ))}
 
-            <li className="sidebar-secao">Cadastros</li>
-            {LINKS_CADASTROS.map((link) => (
-              <li key={link.to}>
-                <NavLink
-                  to={link.to}
-                  className={({ isActive }) => `sidebar-link ${isActive ? "sidebar-link-ativo" : ""}`}
-                  onClick={() => setMenuAberto(false)}
-                >
-                  <span className="sidebar-link-icone">{link.icone}</span>
-                  {link.label}
-                </NavLink>
-              </li>
+            {SECOES_MENU.map((secao) => (
+              <SecaoMenu key={secao.titulo} titulo={secao.titulo} links={secao.links} onNavegar={() => setMenuAberto(false)} />
             ))}
           </ul>
 

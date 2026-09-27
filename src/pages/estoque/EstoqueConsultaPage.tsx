@@ -4,6 +4,7 @@ import { PageHeader } from "../../components/common/PageHeader";
 import { Loading } from "../../components/common/Loading";
 import { Alert } from "../../components/common/Alert";
 import { DataTable } from "../../components/common/DataTable";
+import { ProdutoIcone } from "../../components/common/ProdutoIcone";
 import { produtoService } from "../../services/produtoService";
 import { extrairMensagemErro } from "../../services/api";
 import type { Produto } from "../../types/produto";
@@ -73,6 +74,7 @@ export function EstoqueConsultaPage() {
           keyExtractor={(item) => item.id}
           mensagemVazia="Nenhum produto com controle de estoque encontrado para esse filtro."
           columns={[
+            { header: "", render: (item) => <ProdutoIcone produto={item} /> },
             { header: "Produto", render: (item) => item.descricao },
             { header: "Categoria", render: (item) => item.categoria?.descricao ?? "-" },
             { header: "Estoque atual", render: (item) => item.estoqueAtual },

@@ -8,11 +8,13 @@ import { ProdutoIcone } from "../../components/common/ProdutoIcone";
 import { estoqueService } from "../../services/estoqueService";
 import { produtoService } from "../../services/produtoService";
 import { categoriaFinanceiraService } from "../../services/categoriaFinanceiraService";
+import { caixaService } from "../../services/caixaService";
 import { extrairMensagemErro } from "../../services/api";
 import { useToast } from "../../context/ToastContext";
 import { movimentoEstoqueVazio, ORIGENS_MOVIMENTO_MANUAL, ORIGEM_MOVIMENTO_LABEL, TIPOS_MOVIMENTO, TIPO_MOVIMENTO_LABEL, type MovimentoEstoqueFormData } from "../../types/estoque";
 import type { Produto } from "../../types/produto";
 import type { CategoriaFinanceira } from "../../types/categoriaFinanceira";
+import type { Caixa } from "../../types/caixa";
 
 export function MovimentoEstoqueFormPage() {
   const navigate = useNavigate();
@@ -21,15 +23,20 @@ export function MovimentoEstoqueFormPage() {
   const [form, setForm] = useState<MovimentoEstoqueFormData>(movimentoEstoqueVazio);
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [categoriasDespesa, setCategoriasDespesa] = useState<CategoriaFinanceira[]>([]);
+  const [caixas, setCaixas] = useState<Caixa[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
   useEffect(() => {
-    Promise.all([produtoService.listar({ ativo: true }), categoriaFinanceiraService.listar()])
-      .then(([produtosResp, categoriasResp]) => {
+    Promise.all([produtoService.listar({ ativo: true }), categoriaFinanceiraService.listar(), caixaService.listar()])
+      .then(([produtosResp, categoriasResp, caixasResp]) => {
         setProdutos(produtosResp.filter((p) => p.controlaEstoque));
         setCategoriasDespesa(categoriasResp.filter((c) => c.tipo === "DESPESA"));
+        setCaixas(caixasResp);
+        if (caixasResp.length === 1) {
+          setForm((atual) => ({ ...atual, idCaixa: caixasResp[0].id }));
+        }
       })
       .catch((error) => setErro(extrairMensagemErro(error)))
       .finally(() => setCarregando(false));
@@ -49,8 +56,8 @@ export function MovimentoEstoqueFormPage() {
       setErro("Informe uma quantidade válida.");
       return;
     }
-    if (form.gerarLancamentoFinanceiro && (form.idCategoriaFinanceira === "" || form.valorLancamento === "")) {
-      setErro("Para gerar o lançamento financeiro, informe a categoria e o valor da compra.");
+    if (form.gerarLancamentoFinanceiro && (form.idCategoriaFinanceira === "" || form.valorLancamento === "" || form.idCaixa === "")) {
+      setErro("Para gerar o lançamento financeiro, informe a categoria, o caixa e o valor da compra.");
       return;
     }
 
@@ -181,6 +188,27 @@ export function MovimentoEstoqueFormPage() {
                       value={form.valorLancamento}
                       onChange={(e) => setForm({ ...form, valorLancamento: e.target.value === "" ? "" : Number(e.target.value) })}
                     />
+                  </div>
+
+                  <div className="campo">
+                    <label htmlFor="idCaixa">Caixa *</label>
+                    {caixas.length === 0 ? (
+                      <span className="campo-ajuda">Nenhum caixa cadastrado. Cadastre um em "Caixas" antes de continuar.</span>
+                    ) : (
+                      <select
+                        id="idCaixa"
+                        value={form.idCaixa}
+                        onChange={(e) => setForm({ ...form, idCaixa: e.target.value ? Number(e.target.value) : "" })}
+                      >
+                        <option value="">Selecione...</option>
+                        {caixas.map((caixa) => (
+                          <option key={caixa.id} value={caixa.id}>
+                            {caixa.nome}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                    <span className="campo-ajuda">De onde sai o dinheiro dessa compra.</span>
                   </div>
                 </>
               )}

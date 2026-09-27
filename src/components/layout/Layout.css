@@ -81,6 +81,15 @@
   flex-direction: column;
   gap: 0.2rem;
   flex: 1;
+  /* Rola por conta própria quando os itens não cabem na tela, mantendo a
+     marca (topo) e o rodapé (usuário/sair) sempre visíveis. Sem overflow
+     próprio aqui, um menu mais alto que a viewport (comum no mobile, onde a
+     sidebar vira position:fixed do tamanho da tela) simplesmente transbordava
+     sem rolar, e arrastar dentro dele acabava rolando o conteúdo por trás. */
+  overflow-y: auto;
+  min-height: 0;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .sidebar-link {

@@ -19,6 +19,7 @@ function paraRequest(movimento: MovimentoEstoqueFormData) {
     gerarLancamentoFinanceiro: movimento.gerarLancamentoFinanceiro,
     idCategoriaFinanceira: movimento.idCategoriaFinanceira === "" ? 0 : Number(movimento.idCategoriaFinanceira),
     valorLancamento: movimento.valorLancamento === "" ? null : Number(movimento.valorLancamento),
+    idCaixa: movimento.idCaixa === "" ? 0 : Number(movimento.idCaixa),
   };
 }
 
