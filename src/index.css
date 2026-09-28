@@ -9,9 +9,23 @@
 
   --color-bg: #f4f8f4;
   --color-surface: #ffffff;
+  --color-surface-alt: #f3f4f6;
   --color-text: #1c2620;
   --color-text-muted: #5f6f65;
   --color-border: #dfe8e0;
+
+  /* Texto com a cor da marca (links, títulos, valores em destaque) — separado
+     de --color-primary-dark porque essa também é usada como FUNDO (hover de
+     botão, topbar, sidebar) e precisa continuar escura em qualquer tema; já
+     o texto precisa clarear no escuro pra manter contraste. */
+  --color-heading: var(--color-primary-dark);
+
+  --color-success-bg: #e4f5e6;
+  --color-neutral-bg: #eceff1;
+  --color-neutral-text: #546e7a;
+  --color-danger-bg: #fdecea;
+  --color-danger-border: #f5c2be;
+  --color-danger-text: #8a2c22;
 
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -22,6 +36,46 @@
 
   font-family: "Segoe UI", "Inter", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
   color-scheme: light;
+}
+
+/* Modo escuro — preferência de cada usuário (guardada no navegador dele via
+   ThemeContext), aplicada como atributo em <html>. A sidebar/topbar ficam
+   verde-escuro em qualquer tema (por isso --color-primary-dark não muda
+   aqui); só as superfícies "de página" (fundo, cartões, texto, bordas) e as
+   cores derivadas para contraste são redefinidas.
+   Restrito a @media screen: impressão/PDF sempre sai no tema claro (gasta
+   menos tinta e mantém os relatórios legíveis em papel), então essas
+   variáveis simplesmente não se aplicam ao imprimir. */
+@media screen {
+  :root[data-theme="dark"] {
+    --color-primary: #4caf50;
+    --color-primary-light: #4c7a51;
+    --color-primary-bg: #1b2e20;
+    --color-success: #66bb6a;
+    --color-danger: #ef5350;
+    --color-danger-dark: #ff6659;
+
+    --color-bg: #12181a;
+    --color-surface: #1c2427;
+    --color-surface-alt: #262f33;
+    --color-text: #e7f0ea;
+    --color-text-muted: #9fb0a6;
+    --color-border: #34403c;
+
+    --color-heading: #7fcf8a;
+
+    --color-success-bg: #1e3a24;
+    --color-neutral-bg: #2a3236;
+    --color-neutral-text: #b0c0c6;
+    --color-danger-bg: #3a1f1f;
+    --color-danger-border: #5c2b2b;
+    --color-danger-text: #f5b4ae;
+
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.55);
+
+    color-scheme: dark;
+  }
 }
 
 * {
@@ -47,7 +101,7 @@ h3 {
 }
 
 a {
-  color: var(--color-primary-dark);
+  color: var(--color-heading);
 }
 
 button {
@@ -86,7 +140,7 @@ button {
 }
 
 .btn-secundario {
-  background: #fff;
+  background: var(--color-surface);
   color: var(--color-text);
   border-color: var(--color-border);
 }
@@ -190,7 +244,7 @@ button {
   padding: 0.6rem 0.7rem;
   font-size: 0.9rem;
   color: var(--color-text);
-  background: #fff;
+  background: var(--color-surface);
   font-family: inherit;
 }
 
@@ -249,7 +303,7 @@ button {
   border-radius: var(--radius-md);
   object-fit: cover;
   border: 1px solid var(--color-border);
-  background: #fff;
+  background: var(--color-surface);
 }
 
 .parametro-logo-preview {
@@ -275,7 +329,7 @@ img.avatar-mini {
   border-radius: 50%;
   object-fit: cover;
   border: 1px solid var(--color-border);
-  background: #fff;
+  background: var(--color-surface);
   flex-shrink: 0;
 }
 
@@ -303,7 +357,7 @@ img.avatar-mini {
   padding: 0.5rem 0.7rem;
   font-size: 0.9rem;
   font-family: inherit;
-  background: #fff;
+  background: var(--color-surface);
   color: var(--color-text);
   cursor: pointer;
   text-align: left;
@@ -340,7 +394,7 @@ img.avatar-mini {
   top: calc(100% + 0.25rem);
   left: 0;
   right: 0;
-  background: #fff;
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
@@ -427,7 +481,7 @@ img.avatar-mini {
 .select-foto-folha {
   width: 100%;
   max-height: 75vh;
-  background: #fff;
+  background: var(--color-surface);
   border-radius: 18px 18px 0 0;
   box-shadow: var(--shadow-lg);
   display: flex;
@@ -463,7 +517,7 @@ img.avatar-mini {
   height: 40px;
   border-radius: 50%;
   border: 1px solid var(--color-border);
-  background: #fff;
+  background: var(--color-surface);
   color: var(--color-text-muted);
   font-size: 1rem;
   cursor: pointer;
@@ -509,16 +563,16 @@ img.avatar-mini {
 }
 
 .badge-verde {
-  background: #e4f5e6;
-  color: var(--color-primary-dark);
+  background: var(--color-success-bg);
+  color: var(--color-heading);
 }
 
 .badge-cinza {
-  background: #eceff1;
-  color: #546e7a;
+  background: var(--color-neutral-bg);
+  color: var(--color-neutral-text);
 }
 
 .badge-vermelho {
-  background: #fdecea;
-  color: #c62828;
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
 }

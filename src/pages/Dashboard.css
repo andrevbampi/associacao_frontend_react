@@ -55,7 +55,7 @@
 .dashboard-kpi-valor {
   font-size: 1.4rem;
   font-weight: 700;
-  color: var(--color-primary-dark);
+  color: var(--color-heading);
 }
 
 .dashboard-kpi-positivo {
@@ -84,7 +84,7 @@
 .dashboard-painel h2 {
   margin: 0 0 0.75rem;
   font-size: 0.95rem;
-  color: var(--color-primary-dark);
+  color: var(--color-heading);
 }
 
 .dashboard-painel-vazio {
@@ -131,7 +131,7 @@
 
 .dashboard-secao-titulo {
   font-size: 1rem;
-  color: var(--color-primary-dark);
+  color: var(--color-heading);
   margin: 0 0 0.85rem;
 }
 
@@ -169,7 +169,7 @@
 .dashboard-card h2 {
   margin: 0 0 0.35rem;
   font-size: 1.05rem;
-  color: var(--color-primary-dark);
+  color: var(--color-heading);
 }
 
 .dashboard-card p {

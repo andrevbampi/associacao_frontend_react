@@ -8,13 +8,13 @@
 }
 
 .alert-error {
-  background: #fdecea;
-  border-color: #f5c2be;
-  color: #8a2c22;
+  background: var(--color-danger-bg);
+  border-color: var(--color-danger-border);
+  color: var(--color-danger-text);
 }
 
 .alert-info {
   background: var(--color-primary-bg);
   border-color: var(--color-primary-light);
-  color: var(--color-primary-dark);
+  color: var(--color-heading);
 }

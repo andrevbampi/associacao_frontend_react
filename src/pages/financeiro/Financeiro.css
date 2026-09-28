@@ -22,9 +22,9 @@
 .resumo-card-valor {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--color-primary-dark);
+  color: var(--color-heading);
 }
 
 .resumo-card-valor.negativo {
-  color: #c62828;
+  color: var(--color-danger);
 }
