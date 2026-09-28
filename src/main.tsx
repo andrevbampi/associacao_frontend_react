@@ -6,19 +6,22 @@ import App from "./App.tsx";
 import { ToastProvider } from "./context/ToastContext";
 import { AuthProvider } from "./context/AuthContext";
 import { ParametrosProvider } from "./context/ParametrosContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import { ToastViewport } from "./components/common/ToastViewport";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter>
-      <ToastProvider>
-        <AuthProvider>
-          <ParametrosProvider>
-            <App />
-          </ParametrosProvider>
-        </AuthProvider>
-        <ToastViewport />
-      </ToastProvider>
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <ToastProvider>
+          <AuthProvider>
+            <ParametrosProvider>
+              <App />
+            </ParametrosProvider>
+          </AuthProvider>
+          <ToastViewport />
+        </ToastProvider>
+      </BrowserRouter>
+    </ThemeProvider>
   </StrictMode>
 );

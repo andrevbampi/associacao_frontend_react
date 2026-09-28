@@ -176,6 +176,7 @@
   text-overflow: ellipsis;
 }
 
+.sidebar-tema,
 .sidebar-sair {
   display: flex;
   align-items: center;
@@ -192,6 +193,7 @@
   transition: background-color 0.15s ease;
 }
 
+.sidebar-tema:hover,
 .sidebar-sair:hover {
   background: rgba(255, 255, 255, 0.16);
 }

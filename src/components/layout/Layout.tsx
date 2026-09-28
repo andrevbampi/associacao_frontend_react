@@ -3,6 +3,7 @@ import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
 import { useParametros } from "../../context/ParametrosContext";
+import { useTheme } from "../../context/ThemeContext";
 import { ImagemAutenticada } from "../common/ImagemAutenticada";
 import { apiBaseUrl } from "../../services/api";
 import "./Layout.css";
@@ -76,6 +77,7 @@ export function Layout() {
   const { usuario, logout } = useAuth();
   const { showToast } = useToast();
   const { nomeAssociacao, logoUrl } = useParametros();
+  const { tema, alternarTema } = useTheme();
 
   function handleLogout() {
     logout();
@@ -155,6 +157,9 @@ export function Layout() {
                 <div className="sidebar-usuario-login">@{usuario?.login}</div>
               </div>
             </div>
+            <button type="button" className="sidebar-tema" onClick={alternarTema}>
+              {tema === "dark" ? "☀️ Modo claro" : "🌙 Modo escuro"}
+            </button>
             <button type="button" className="sidebar-sair" onClick={handleLogout}>
               ⏻ Sair
             </button>

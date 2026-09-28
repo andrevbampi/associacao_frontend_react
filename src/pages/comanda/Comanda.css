@@ -35,7 +35,7 @@
 .comanda-modo-toggle button {
   flex: 1;
   border: 1px solid var(--color-border);
-  background: #fff;
+  background: var(--color-surface);
   color: var(--color-text);
   padding: 0.55rem 0.75rem;
   border-radius: var(--radius-md);
@@ -110,7 +110,7 @@
 }
 
 .comanda-total strong {
-  color: var(--color-primary-dark);
+  color: var(--color-heading);
   font-size: 1.4rem;
 }
 
