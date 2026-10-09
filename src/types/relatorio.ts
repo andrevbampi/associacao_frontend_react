@@ -45,11 +45,21 @@ export interface RelatorioLivroCaixaLinha {
   observacao: string | null;
 }
 
+export interface RelatorioLivroCaixaAcumulado {
+  caixa: string | null;
+  totalEntradas: number;
+  totalSaidas: number;
+  saldo: number;
+}
+
 export interface RelatorioLivroCaixaResponse {
   linhas: RelatorioLivroCaixaLinha[];
   totalEntradasGeral: number;
   totalSaidasGeral: number;
   saldoGeral: number;
+  dataAcumuladoAte: string;
+  acumuladoGeral: RelatorioLivroCaixaAcumulado;
+  acumuladosPorCaixa: RelatorioLivroCaixaAcumulado[];
 }
 
 export interface RelatorioLivroCaixaFiltro {

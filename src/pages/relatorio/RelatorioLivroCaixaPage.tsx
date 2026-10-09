@@ -12,6 +12,27 @@ import { montarLinhasComSubtotaisLivroCaixa } from "../../utils/livroCaixaSubtot
 import "./Relatorio.css";
 import "./RelatorioLivroCaixaPage.css";
 
+function TotaisResumo({ entradas, saidas, saldo }: { entradas: number; saidas: number; saldo: number }) {
+  return (
+    <dl className="livro-caixa-total-valores">
+      <div>
+        <dt>Entradas</dt>
+        <dd>{formatarMoeda(entradas)}</dd>
+      </div>
+      <div>
+        <dt>Saídas</dt>
+        <dd>{formatarMoeda(saidas)}</dd>
+      </div>
+      <div>
+        <dt>Saldo</dt>
+        <dd>
+          <strong>{formatarMoeda(saldo)}</strong>
+        </dd>
+      </div>
+    </dl>
+  );
+}
+
 export function RelatorioLivroCaixaPage() {
   const [caixas, setCaixas] = useState<Caixa[]>([]);
 
@@ -22,6 +43,8 @@ export function RelatorioLivroCaixaPage() {
   const [agruparPorMes, setAgruparPorMes] = useState(false);
 
   const [resultado, setResultado] = useState<RelatorioLivroCaixaResponse | null>(null);
+  const [dataInicioRelatorio, setDataInicioRelatorio] = useState("");
+  const [dataFimRelatorio, setDataFimRelatorio] = useState("");
   const [gerando, setGerando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
@@ -41,6 +64,8 @@ export function RelatorioLivroCaixaPage() {
         agruparPorMes,
       };
       setResultado(await relatorioService.livroCaixa(filtro));
+      setDataInicioRelatorio(dataInicio);
+      setDataFimRelatorio(dataFim);
     } catch (error) {
       setErro(extrairMensagemErro(error));
     } finally {
@@ -170,7 +195,7 @@ export function RelatorioLivroCaixaPage() {
                 <tfoot>
                   <tr>
                     <td colSpan={3 + colunasExtras}>
-                      <strong>Total geral</strong>
+                      <strong>Total do período filtrado</strong>
                     </td>
                     <td>
                       <strong>{formatarMoeda(resultado.totalEntradasGeral)}</strong>
@@ -186,6 +211,61 @@ export function RelatorioLivroCaixaPage() {
               </table>
             </div>
           )}
+
+          <div className="livro-caixa-totais">
+            <div className="livro-caixa-total-bloco">
+              <h3>Total do período</h3>
+              <p className="livro-caixa-total-detalhe">
+                {dataInicioRelatorio ? formatarData(dataInicioRelatorio) : "início do histórico"} a{" "}
+                {dataFimRelatorio ? formatarData(dataFimRelatorio) : "sem data final"}
+              </p>
+              <TotaisResumo entradas={resultado.totalEntradasGeral} saidas={resultado.totalSaidasGeral} saldo={resultado.saldoGeral} />
+            </div>
+
+            <div className="livro-caixa-total-bloco livro-caixa-total-acumulado">
+              <h3>Total acumulado até a data final</h3>
+              {resultado.acumuladoGeral ? (
+                <>
+                  <p className="livro-caixa-total-detalhe">
+                    Desde o primeiro movimento até {formatarData(resultado.dataAcumuladoAte)} (ignora a data de início)
+                  </p>
+                  <TotaisResumo
+                    entradas={resultado.acumuladoGeral.totalEntradas}
+                    saidas={resultado.acumuladoGeral.totalSaidas}
+                    saldo={resultado.acumuladoGeral.saldo}
+                  />
+                  {(resultado.acumuladosPorCaixa ?? []).length > 0 && (
+                    <table className="tabela livro-caixa-acumulado-caixas">
+                      <thead>
+                        <tr>
+                          <th>Caixa</th>
+                          <th>Entradas</th>
+                          <th>Saídas</th>
+                          <th>Saldo acumulado</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {resultado.acumuladosPorCaixa.map((acumulado) => (
+                          <tr key={acumulado.caixa}>
+                            <td>{acumulado.caixa}</td>
+                            <td>{formatarMoeda(acumulado.totalEntradas)}</td>
+                            <td>{formatarMoeda(acumulado.totalSaidas)}</td>
+                            <td>
+                              <strong>{formatarMoeda(acumulado.saldo)}</strong>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </>
+              ) : (
+                <p className="livro-caixa-total-detalhe">
+                  A API não retornou o total acumulado. Reinicie o backend para carregar a versão atualizada.
+                </p>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>
