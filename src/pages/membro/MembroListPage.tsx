@@ -13,8 +13,10 @@ import { useToast } from "../../context/ToastContext";
 import type { MembroResponse } from "../../types/membro";
 import type { StatusMembro } from "../../types/statusMembro";
 import { formatarData } from "../../utils/formatters";
+import { useAuth } from "../../context/AuthContext";
 
 export function MembroListPage() {
+  const { pode } = useAuth();
   const { showToast } = useToast();
   const [membros, setMembros] = useState<MembroResponse[]>([]);
   const [statusList, setStatusList] = useState<StatusMembro[]>([]);
@@ -76,7 +78,7 @@ export function MembroListPage() {
 
   return (
     <div>
-      <PageHeader titulo="Membros" subtitulo="Pessoas associadas, com status e período de vínculo." acaoLink="/membros/novo" acaoTexto="Novo membro" />
+      <PageHeader titulo="Membros" subtitulo="Pessoas associadas, com status e período de vínculo." acaoLink={pode("membro:criar") ? "/membros/novo" : undefined} acaoTexto="Novo membro" />
 
       <div className="filtros-card">
         <div className="filtros-grid">
@@ -142,10 +144,10 @@ export function MembroListPage() {
                   <Link to={`/membros/${item.id}`} className="btn btn-secundario btn-sm btn-icone" title="Ver histórico" aria-label={`Ver histórico de ${item.pessoa?.nome}`}>
                     📋
                   </Link>{" "}
-                  <Link to={`/membros/${item.id}/editar`} className="btn btn-secundario btn-sm btn-icone" title="Editar" aria-label={`Editar membro ${item.pessoa?.nome}`}>
+                  {pode("membro:editar") && (<Link to={`/membros/${item.id}/editar`} className="btn btn-secundario btn-sm btn-icone" title="Editar" aria-label={`Editar membro ${item.pessoa?.nome}`}>
                     ✎
-                  </Link>{" "}
-                  <button
+                  </Link>)}{" "}
+                  {pode("membro:excluir") && (<button
                     type="button"
                     className="btn btn-perigo btn-sm btn-icone"
                     title="Excluir"
@@ -153,7 +155,7 @@ export function MembroListPage() {
                     onClick={() => setParaExcluir(item)}
                   >
                     🗑
-                  </button>
+                  </button>)}
                 </>
               ),
             },

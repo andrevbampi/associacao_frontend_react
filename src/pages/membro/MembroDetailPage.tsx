@@ -15,8 +15,10 @@ import { historicoMembroVazio } from "../../types/historicoMembro";
 import type { TipoEvento } from "../../types/tipoEvento";
 import { formatarData, formatarDataHora, paraDataHoraInput } from "../../utils/formatters";
 import "./MembroDetailPage.css";
+import { useAuth } from "../../context/AuthContext";
 
 export function MembroDetailPage() {
+  const { pode } = useAuth();
   const { id } = useParams();
   const idMembro = Number(id);
   const navigate = useNavigate();
@@ -40,8 +42,8 @@ export function MembroDetailPage() {
     try {
       const [membros, historicoLista, tipos] = await Promise.all([
         membroService.listar(),
-        historicoMembroService.listarPorMembro(idMembro),
-        tipoEventoService.listar(),
+        pode("historico-membro:visualizar") ? historicoMembroService.listarPorMembro(idMembro) : Promise.resolve([]),
+        pode("historico-membro:gerenciar") ? tipoEventoService.listar() : Promise.resolve([]),
       ]);
       const encontrado = membros.find((m) => m.id === idMembro);
       if (!encontrado) {
@@ -56,7 +58,7 @@ export function MembroDetailPage() {
     } finally {
       setCarregando(false);
     }
-  }, [idMembro]);
+  }, [idMembro, pode]);
 
   useEffect(() => {
     carregar();
@@ -162,14 +164,19 @@ export function MembroDetailPage() {
           <span>{formatarData(membro.dataSaida)}</span>
         </div>
         <div>
-          <Link to={`/membros/${membro.id}/editar`} className="btn btn-secundario btn-sm">
-            ✎ Editar membro
-          </Link>
+          {pode("membro:editar") && (
+            <Link to={`/membros/${membro.id}/editar`} className="btn btn-secundario btn-sm">
+              ✎ Editar membro
+            </Link>
+          )}
         </div>
       </div>
 
+      {pode("historico-membro:visualizar") && (
+      <>
       <h2 className="membro-detalhe-subtitulo">Histórico</h2>
 
+      {pode("historico-membro:gerenciar") && (
       <form className="form-card historico-form" onSubmit={handleSubmit}>
         {erroForm && <Alert mensagem={erroForm} />}
         <div className="form-grid">
@@ -243,6 +250,7 @@ export function MembroDetailPage() {
           </button>
         </div>
       </form>
+      )}
 
       {historico.length === 0 ? (
         <div className="tabela-vazia">
@@ -265,6 +273,7 @@ export function MembroDetailPage() {
                     registrado por {item.usuarioRegistro?.pessoa?.nome ?? item.usuarioRegistro?.login}
                     {!item.ativo && " · inativo"}
                   </span>
+                  {pode("historico-membro:gerenciar") && (
                   <span className="timeline-acoes">
                     <button type="button" className="btn btn-secundario btn-sm btn-icone" title="Editar" onClick={() => iniciarEdicao(item)}>
                       ✎
@@ -273,11 +282,14 @@ export function MembroDetailPage() {
                       🗑
                     </button>
                   </span>
+                  )}
                 </div>
               </div>
             </li>
           ))}
         </ul>
+      )}
+      </>
       )}
 
       <div className="form-acoes-voltar">

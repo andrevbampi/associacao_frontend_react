@@ -15,8 +15,10 @@ import type { Caixa } from "../../types/caixa";
 import { FORMA_PAGAMENTO_LABEL } from "../../types/formaPagamento";
 import { formatarData, formatarMoeda } from "../../utils/formatters";
 import "./Financeiro.css";
+import { useAuth } from "../../context/AuthContext";
 
 export function LancamentoFinanceiroListPage() {
+  const { pode } = useAuth();
   const { showToast } = useToast();
   const [lancamentos, setLancamentos] = useState<LancamentoFinanceiroResponse[]>([]);
   const [categorias, setCategorias] = useState<CategoriaFinanceira[]>([]);
@@ -94,7 +96,7 @@ export function LancamentoFinanceiroListPage() {
 
   return (
     <div>
-      <PageHeader titulo="Financeiro" subtitulo="Lançamentos de entradas e saídas de caixa." acaoLink="/financeiro/novo" acaoTexto="Novo lançamento" />
+      <PageHeader titulo="Financeiro" subtitulo="Lançamentos de entradas e saídas de caixa." acaoLink={pode("financeiro:criar") ? "/financeiro/novo" : undefined} acaoTexto="Novo lançamento" />
 
       {resumo && (
         <div className="resumo-financeiro">
@@ -209,21 +211,25 @@ export function LancamentoFinanceiroListPage() {
             {
               header: "",
               className: "col-acoes",
-              render: (item) =>
-                !item.pago ? (
-                  <button
-                    type="button"
-                    className="btn btn-secundario btn-sm"
-                    disabled={registrandoPagamento === item.id}
-                    onClick={() => handleRegistrarPagamento(item.id)}
-                  >
-                    Registrar pagamento
-                  </button>
-                ) : (
-                  <Link to={`/financeiro/${item.id}/editar`} className="btn btn-secundario btn-sm btn-icone" title="Editar">
-                    ✎
-                  </Link>
-                ),
+              render: (item) => (
+                <>
+                  {!item.pago && pode("financeiro:pagar") && (
+                    <button
+                      type="button"
+                      className="btn btn-secundario btn-sm"
+                      disabled={registrandoPagamento === item.id}
+                      onClick={() => handleRegistrarPagamento(item.id)}
+                    >
+                      Registrar pagamento
+                    </button>
+                  )}
+                  {item.pago && pode("financeiro:editar") && (
+                    <Link to={`/financeiro/${item.id}/editar`} className="btn btn-secundario btn-sm btn-icone" title="Editar">
+                      ✎
+                    </Link>
+                  )}
+                </>
+              ),
             },
           ]}
         />

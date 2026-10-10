@@ -10,8 +10,10 @@ import { useToast } from "../../context/ToastContext";
 import { useParametros } from "../../context/ParametrosContext";
 import { CHAVE_CAIXA_COMANDA, LABEL_PARAMETRO, type ParametroSistema } from "../../types/parametroSistema";
 import type { Caixa } from "../../types/caixa";
+import { useAuth } from "../../context/AuthContext";
 
 export function ParametroSistemaPage() {
+  const { pode } = useAuth();
   const { showToast } = useToast();
   const { recarregar, logoUrl } = useParametros();
 
@@ -114,6 +116,7 @@ export function ParametroSistemaPage() {
             ) : (
               <span className="campo-ajuda">Nenhuma logo cadastrada ainda — o ícone padrão (🌿) é usado no lugar.</span>
             )}
+            {pode("parametro:logo") && (
             <div className="parametro-logo-acoes">
               <label className="btn btn-secundario btn-sm">
                 {enviandoLogo ? <LoadingInline /> : logoUrl ? "Trocar logo" : "Enviar logo"}
@@ -125,6 +128,7 @@ export function ParametroSistemaPage() {
                 </button>
               )}
             </div>
+            )}
           </div>
           <span className="campo-ajuda">Aparece na tela de login e no menu lateral do sistema. Formatos aceitos: JPG, PNG, WEBP ou GIF.</span>
         </div>
@@ -168,11 +172,13 @@ export function ParametroSistemaPage() {
           ))}
         </div>
 
-        <div className="form-acoes">
-          <button type="submit" className="btn btn-primario" disabled={salvando}>
-            {salvando ? <LoadingInline /> : "Salvar parâmetros"}
-          </button>
-        </div>
+        {pode("parametro:alterar") && (
+          <div className="form-acoes">
+            <button type="submit" className="btn btn-primario" disabled={salvando}>
+              {salvando ? <LoadingInline /> : "Salvar parâmetros"}
+            </button>
+          </div>
+        )}
       </form>
 
       <ConfirmDialog

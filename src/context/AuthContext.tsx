@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { authService } from "../services/authService";
 import { authStorage } from "../utils/authStorage";
 import { onUnauthorized } from "../utils/authEvents";
@@ -10,6 +10,10 @@ interface AuthContextValue {
   autenticado: boolean;
   carregando: boolean;
   mensagemSessao: string | null;
+  /** true se o usuário logado tem a permissão (ex.: "comanda:fechar"). */
+  pode: (permissao: string) => boolean;
+  /** true se tem ao menos uma das permissões informadas. */
+  podeAlgum: (...permissoes: string[]) => boolean;
   login: (login: string, senha: string) => Promise<void>;
   logout: () => void;
   limparMensagemSessao: () => void;
@@ -80,6 +84,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const limparMensagemSessao = useCallback(() => setMensagemSessao(null), []);
 
+  // A decisão de verdade é sempre do back-end (HTTP 403); aqui só escondemos o
+  // que o usuário não poderia usar, para não oferecer botões que dariam erro.
+  const permissoes = useMemo(() => new Set(usuario?.permissoes ?? []), [usuario]);
+  const pode = useCallback((permissao: string) => permissoes.has(permissao), [permissoes]);
+  const podeAlgum = useCallback((...lista: string[]) => lista.some((p) => permissoes.has(p)), [permissoes]);
+
   return (
     <AuthContext.Provider
       value={{
@@ -87,6 +97,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         autenticado: usuario !== null,
         carregando,
         mensagemSessao,
+        pode,
+        podeAlgum,
         login,
         logout,
         limparMensagemSessao,

@@ -17,6 +17,7 @@ import type { CategoriaProduto } from "../../types/categoriaProduto";
 import { formatarMoeda } from "../../utils/formatters";
 import { montarLinhasComSubtotais } from "../../utils/relatorioSubtotais";
 import "./Relatorio.css";
+import { useAuth } from "../../context/AuthContext";
 
 const STATUS_LABEL: Record<string, string> = {
   ABERTA: "Aberta",
@@ -24,6 +25,7 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 export function RelatorioConsumoProdutosPage() {
+  const { pode } = useAuth();
   const [pessoas, setPessoas] = useState<Pessoa[]>([]);
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [categorias, setCategorias] = useState<CategoriaProduto[]>([]);
@@ -195,7 +197,7 @@ export function RelatorioConsumoProdutosPage() {
           <button type="button" className="btn btn-primario" onClick={gerarRelatorio} disabled={gerando}>
             {gerando ? <LoadingInline /> : "Gerar relatório"}
           </button>
-          {resultado && (
+          {resultado && pode("relatorio:imprimir") && (
             <button type="button" className="btn btn-secundario" onClick={() => window.print()}>
               Imprimir / Gerar PDF
             </button>

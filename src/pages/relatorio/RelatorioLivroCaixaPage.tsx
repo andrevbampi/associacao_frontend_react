@@ -11,6 +11,7 @@ import { formatarData, formatarMoeda } from "../../utils/formatters";
 import { montarLinhasComSubtotaisLivroCaixa } from "../../utils/livroCaixaSubtotais";
 import "./Relatorio.css";
 import "./RelatorioLivroCaixaPage.css";
+import { useAuth } from "../../context/AuthContext";
 
 function TotaisResumo({ entradas, saidas, saldo }: { entradas: number; saidas: number; saldo: number }) {
   return (
@@ -34,6 +35,7 @@ function TotaisResumo({ entradas, saidas, saldo }: { entradas: number; saidas: n
 }
 
 export function RelatorioLivroCaixaPage() {
+  const { pode } = useAuth();
   const [caixas, setCaixas] = useState<Caixa[]>([]);
 
   const [idCaixa, setIdCaixa] = useState<number | "">("");
@@ -134,7 +136,7 @@ export function RelatorioLivroCaixaPage() {
           <button type="button" className="btn btn-primario" onClick={gerarRelatorio} disabled={gerando}>
             {gerando ? <LoadingInline /> : "Gerar relatório"}
           </button>
-          {resultado && (
+          {resultado && pode("relatorio:imprimir") && (
             <button type="button" className="btn btn-secundario" onClick={() => window.print()}>
               Imprimir / Gerar PDF
             </button>

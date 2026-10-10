@@ -11,8 +11,10 @@ import { extrairMensagemErro } from "../../services/api";
 import { useToast } from "../../context/ToastContext";
 import { TIPO_PESSOA_LABEL, TIPO_PESSOA_FISICA, TIPO_PESSOA_JURIDICA, type Pessoa } from "../../types/pessoa";
 import { formatarData } from "../../utils/formatters";
+import { useAuth } from "../../context/AuthContext";
 
 export function PessoaListPage() {
+  const { pode } = useAuth();
   const { showToast } = useToast();
   const [pessoas, setPessoas] = useState<Pessoa[]>([]);
   const [carregando, setCarregando] = useState(true);
@@ -62,7 +64,7 @@ export function PessoaListPage() {
 
   return (
     <div>
-      <PageHeader titulo="Pessoas" subtitulo="Cadastro geral de pessoas físicas e jurídicas." acaoLink="/pessoas/nova" acaoTexto="Nova pessoa" />
+      <PageHeader titulo="Pessoas" subtitulo="Cadastro geral de pessoas físicas e jurídicas." acaoLink={pode("pessoa:criar") ? "/pessoas/nova" : undefined} acaoTexto="Nova pessoa" />
 
       <div className="filtros-card">
         <div className="filtros-grid">
@@ -108,10 +110,10 @@ export function PessoaListPage() {
               className: "col-acoes",
               render: (pessoa) => (
                 <>
-                  <Link to={`/pessoas/${pessoa.id}/editar`} className="btn btn-secundario btn-sm btn-icone" title="Editar" aria-label={`Editar ${pessoa.nome}`}>
+                  {pode("pessoa:editar") && (<Link to={`/pessoas/${pessoa.id}/editar`} className="btn btn-secundario btn-sm btn-icone" title="Editar" aria-label={`Editar ${pessoa.nome}`}>
                     ✎
-                  </Link>{" "}
-                  <button
+                  </Link>)}{" "}
+                  {pode("pessoa:excluir") && (<button
                     type="button"
                     className="btn btn-perigo btn-sm btn-icone"
                     title="Excluir"
@@ -119,7 +121,7 @@ export function PessoaListPage() {
                     onClick={() => setPessoaParaExcluir(pessoa)}
                   >
                     🗑
-                  </button>
+                  </button>)}
                 </>
               ),
             },

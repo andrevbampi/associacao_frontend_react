@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import { Layout } from "./components/layout/Layout";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import { RotaProtegida } from "./components/auth/RotaProtegida";
 import { LoginPage } from "./pages/LoginPage";
 import { Dashboard } from "./pages/Dashboard";
 import { PessoaListPage } from "./pages/pessoa/PessoaListPage";
@@ -35,6 +36,10 @@ import { AtaListPage } from "./pages/ata/AtaListPage";
 import { AtaFormPage } from "./pages/ata/AtaFormPage";
 import { RelatorioConsumoProdutosPage } from "./pages/relatorio/RelatorioConsumoProdutosPage";
 import { RelatorioLivroCaixaPage } from "./pages/relatorio/RelatorioLivroCaixaPage";
+import { GrupoListPage } from "./pages/grupo/GrupoListPage";
+import { GrupoFormPage } from "./pages/grupo/GrupoFormPage";
+import { UsuarioAcessoPage } from "./pages/usuario/UsuarioAcessoPage";
+import { AuditoriaAcessoPage } from "./pages/auditoriaAcesso/AuditoriaAcessoPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 
 function App() {
@@ -46,63 +51,188 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Dashboard />} />
 
-          <Route path="pessoas" element={<PessoaListPage />} />
-          <Route path="pessoas/nova" element={<PessoaFormPage />} />
-          <Route path="pessoas/:id/editar" element={<PessoaFormPage />} />
+          <Route element={<RotaProtegida permissao="pessoa:visualizar" />}>
+            <Route path="pessoas" element={<PessoaListPage />} />
+          </Route>
 
-          <Route path="usuarios" element={<UsuarioListPage />} />
-          <Route path="usuarios/novo" element={<UsuarioFormPage />} />
-          <Route path="usuarios/:id/editar" element={<UsuarioFormPage />} />
+          <Route element={<RotaProtegida permissao="pessoa:criar" />}>
+            <Route path="pessoas/nova" element={<PessoaFormPage />} />
+          </Route>
 
-          <Route path="membros" element={<MembroListPage />} />
-          <Route path="membros/novo" element={<MembroFormPage />} />
-          <Route path="membros/:id" element={<MembroDetailPage />} />
-          <Route path="membros/:id/editar" element={<MembroFormPage />} />
+          <Route element={<RotaProtegida permissao="pessoa:editar" />}>
+            <Route path="pessoas/:id/editar" element={<PessoaFormPage />} />
+          </Route>
 
-          <Route path="status-membro" element={<StatusMembroListPage />} />
-          <Route path="status-membro/novo" element={<StatusMembroFormPage />} />
-          <Route path="status-membro/:id/editar" element={<StatusMembroFormPage />} />
+          <Route element={<RotaProtegida permissao="usuario:visualizar" />}>
+            <Route path="usuarios" element={<UsuarioListPage />} />
+          </Route>
 
-          <Route path="tipos-evento" element={<TipoEventoListPage />} />
-          <Route path="tipos-evento/novo" element={<TipoEventoFormPage />} />
-          <Route path="tipos-evento/:id/editar" element={<TipoEventoFormPage />} />
+          <Route element={<RotaProtegida permissao="usuario:criar" />}>
+            <Route path="usuarios/novo" element={<UsuarioFormPage />} />
+          </Route>
 
-          <Route path="produtos" element={<ProdutoListPage />} />
-          <Route path="produtos/novo" element={<ProdutoFormPage />} />
-          <Route path="produtos/:id/editar" element={<ProdutoFormPage />} />
+          <Route element={<RotaProtegida permissao="usuario:editar" />}>
+            <Route path="usuarios/:id/editar" element={<UsuarioFormPage />} />
+          </Route>
 
-          <Route path="categorias-produto" element={<CategoriaProdutoListPage />} />
-          <Route path="categorias-produto/nova" element={<CategoriaProdutoFormPage />} />
-          <Route path="categorias-produto/:id/editar" element={<CategoriaProdutoFormPage />} />
+          <Route element={<RotaProtegida permissao="membro:visualizar" />}>
+            <Route path="membros" element={<MembroListPage />} />
+            <Route path="membros/:id" element={<MembroDetailPage />} />
+          </Route>
 
-          <Route path="comandas" element={<ComandaListPage />} />
-          <Route path="comandas/nova" element={<ComandaAbrirPage />} />
-          <Route path="comandas/:id" element={<ComandaDetailPage />} />
+          <Route element={<RotaProtegida permissao="membro:criar" />}>
+            <Route path="membros/novo" element={<MembroFormPage />} />
+          </Route>
 
-          <Route path="estoque" element={<EstoqueConsultaPage />} />
-          <Route path="estoque/nova" element={<MovimentoEstoqueFormPage />} />
-          <Route path="estoque/movimentos" element={<MovimentoEstoqueListPage />} />
+          <Route element={<RotaProtegida permissao="membro:editar" />}>
+            <Route path="membros/:id/editar" element={<MembroFormPage />} />
+          </Route>
 
-          <Route path="categorias-financeiras" element={<CategoriaFinanceiraListPage />} />
-          <Route path="categorias-financeiras/nova" element={<CategoriaFinanceiraFormPage />} />
-          <Route path="categorias-financeiras/:id/editar" element={<CategoriaFinanceiraFormPage />} />
+          <Route element={<RotaProtegida permissao="status-membro:visualizar" />}>
+            <Route path="status-membro" element={<StatusMembroListPage />} />
+          </Route>
 
-          <Route path="financeiro" element={<LancamentoFinanceiroListPage />} />
-          <Route path="financeiro/novo" element={<LancamentoFinanceiroFormPage />} />
-          <Route path="financeiro/:id/editar" element={<LancamentoFinanceiroFormPage />} />
+          <Route element={<RotaProtegida permissao="status-membro:criar" />}>
+            <Route path="status-membro/novo" element={<StatusMembroFormPage />} />
+          </Route>
 
-          <Route path="caixas" element={<CaixaListPage />} />
-          <Route path="caixas/novo" element={<CaixaFormPage />} />
-          <Route path="caixas/:id/editar" element={<CaixaFormPage />} />
+          <Route element={<RotaProtegida permissao="status-membro:editar" />}>
+            <Route path="status-membro/:id/editar" element={<StatusMembroFormPage />} />
+          </Route>
 
-          <Route path="parametros" element={<ParametroSistemaPage />} />
+          <Route element={<RotaProtegida permissao="tipo-evento:visualizar" />}>
+            <Route path="tipos-evento" element={<TipoEventoListPage />} />
+          </Route>
 
-          <Route path="atas" element={<AtaListPage />} />
-          <Route path="atas/nova" element={<AtaFormPage />} />
-          <Route path="atas/:id/editar" element={<AtaFormPage />} />
+          <Route element={<RotaProtegida permissao="tipo-evento:criar" />}>
+            <Route path="tipos-evento/novo" element={<TipoEventoFormPage />} />
+          </Route>
 
-          <Route path="relatorios/consumo-produtos" element={<RelatorioConsumoProdutosPage />} />
-          <Route path="relatorios/livro-caixa" element={<RelatorioLivroCaixaPage />} />
+          <Route element={<RotaProtegida permissao="tipo-evento:editar" />}>
+            <Route path="tipos-evento/:id/editar" element={<TipoEventoFormPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="produto:visualizar" />}>
+            <Route path="produtos" element={<ProdutoListPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="produto:criar" />}>
+            <Route path="produtos/novo" element={<ProdutoFormPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="produto:editar" />}>
+            <Route path="produtos/:id/editar" element={<ProdutoFormPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="categoria-produto:visualizar" />}>
+            <Route path="categorias-produto" element={<CategoriaProdutoListPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="categoria-produto:criar" />}>
+            <Route path="categorias-produto/nova" element={<CategoriaProdutoFormPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="categoria-produto:editar" />}>
+            <Route path="categorias-produto/:id/editar" element={<CategoriaProdutoFormPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="comanda:visualizar" />}>
+            <Route path="comandas" element={<ComandaListPage />} />
+            <Route path="comandas/:id" element={<ComandaDetailPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="comanda:abrir" />}>
+            <Route path="comandas/nova" element={<ComandaAbrirPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="estoque:visualizar" />}>
+            <Route path="estoque" element={<EstoqueConsultaPage />} />
+            <Route path="estoque/movimentos" element={<MovimentoEstoqueListPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="estoque:movimentar" />}>
+            <Route path="estoque/nova" element={<MovimentoEstoqueFormPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="categoria-financeira:visualizar" />}>
+            <Route path="categorias-financeiras" element={<CategoriaFinanceiraListPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="categoria-financeira:criar" />}>
+            <Route path="categorias-financeiras/nova" element={<CategoriaFinanceiraFormPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="categoria-financeira:editar" />}>
+            <Route path="categorias-financeiras/:id/editar" element={<CategoriaFinanceiraFormPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="financeiro:visualizar" />}>
+            <Route path="financeiro" element={<LancamentoFinanceiroListPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="financeiro:criar" />}>
+            <Route path="financeiro/novo" element={<LancamentoFinanceiroFormPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="financeiro:editar" />}>
+            <Route path="financeiro/:id/editar" element={<LancamentoFinanceiroFormPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="caixa:visualizar" />}>
+            <Route path="caixas" element={<CaixaListPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="caixa:criar" />}>
+            <Route path="caixas/novo" element={<CaixaFormPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="caixa:editar" />}>
+            <Route path="caixas/:id/editar" element={<CaixaFormPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="parametro:visualizar" />}>
+            <Route path="parametros" element={<ParametroSistemaPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="ata:visualizar" />}>
+            <Route path="atas" element={<AtaListPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="ata:criar" />}>
+            <Route path="atas/nova" element={<AtaFormPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="ata:editar" />}>
+            <Route path="atas/:id/editar" element={<AtaFormPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="relatorio:consumo-produtos" />}>
+            <Route path="relatorios/consumo-produtos" element={<RelatorioConsumoProdutosPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="relatorio:livro-caixa" />}>
+            <Route path="relatorios/livro-caixa" element={<RelatorioLivroCaixaPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="usuario:gerenciar-acesso" />}>
+            <Route path="usuarios/:id/acesso" element={<UsuarioAcessoPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="grupo:visualizar" />}>
+            <Route path="grupos" element={<GrupoListPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="grupo:criar" />}>
+            <Route path="grupos/novo" element={<GrupoFormPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="grupo:editar" />}>
+            <Route path="grupos/:id/editar" element={<GrupoFormPage />} />
+          </Route>
+
+          <Route element={<RotaProtegida permissao="auditoria:visualizar" />}>
+            <Route path="auditoria-acesso" element={<AuditoriaAcessoPage />} />
+          </Route>
 
           <Route path="*" element={<NotFoundPage />} />
         </Route>

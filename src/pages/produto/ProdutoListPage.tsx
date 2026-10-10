@@ -13,8 +13,10 @@ import { useToast } from "../../context/ToastContext";
 import type { Produto } from "../../types/produto";
 import type { CategoriaProduto } from "../../types/categoriaProduto";
 import { formatarMoeda } from "../../utils/formatters";
+import { useAuth } from "../../context/AuthContext";
 
 export function ProdutoListPage() {
+  const { pode } = useAuth();
   const { showToast } = useToast();
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [categorias, setCategorias] = useState<CategoriaProduto[]>([]);
@@ -76,7 +78,7 @@ export function ProdutoListPage() {
 
   return (
     <div>
-      <PageHeader titulo="Produtos" subtitulo="Itens vendidos no bar/caixa, com preço normal e preço para membros." acaoLink="/produtos/novo" acaoTexto="Novo produto" />
+      <PageHeader titulo="Produtos" subtitulo="Itens vendidos no bar/caixa, com preço normal e preço para membros." acaoLink={pode("produto:criar") ? "/produtos/novo" : undefined} acaoTexto="Novo produto" />
 
       <div className="filtros-card">
         <div className="filtros-grid">
@@ -151,10 +153,10 @@ export function ProdutoListPage() {
               className: "col-acoes",
               render: (item) => (
                 <>
-                  <Link to={`/produtos/${item.id}/editar`} className="btn btn-secundario btn-sm btn-icone" title="Editar" aria-label={`Editar ${item.descricao}`}>
+                  {pode("produto:editar") && (<Link to={`/produtos/${item.id}/editar`} className="btn btn-secundario btn-sm btn-icone" title="Editar" aria-label={`Editar ${item.descricao}`}>
                     ✎
-                  </Link>{" "}
-                  <button
+                  </Link>)}{" "}
+                  {pode("produto:excluir") && (<button
                     type="button"
                     className="btn btn-perigo btn-sm btn-icone"
                     title="Excluir"
@@ -162,7 +164,7 @@ export function ProdutoListPage() {
                     onClick={() => setParaExcluir(item)}
                   >
                     🗑
-                  </button>
+                  </button>)}
                 </>
               ),
             },

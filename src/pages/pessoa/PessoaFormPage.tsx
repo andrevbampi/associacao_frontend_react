@@ -22,8 +22,10 @@ import {
 import type { DocumentoPessoa } from "../../types/documentoPessoa";
 import { paraDataInput, formatarDataHora } from "../../utils/formatters";
 import { mascararDocumento, validarDocumento } from "../../utils/documento";
+import { useAuth } from "../../context/AuthContext";
 
 export function PessoaFormPage() {
+  const { pode } = useAuth();
   const { id } = useParams();
   const emEdicao = Boolean(id);
   const navigate = useNavigate();
@@ -58,7 +60,7 @@ export function PessoaFormPage() {
         }
         setForm({ ...pessoa, dataNascimento: paraDataInput(pessoa.dataNascimento) });
         setTemFoto(pessoa.temFoto);
-        setDocumentos(await documentoPessoaService.listar(pessoa.id));
+        setDocumentos(pode("pessoa:documento-visualizar") ? await documentoPessoaService.listar(pessoa.id) : []);
       } catch (error) {
         setErro(extrairMensagemErro(error));
       } finally {
@@ -197,6 +199,7 @@ export function PessoaFormPage() {
                 ) : (
                   <span className="campo-ajuda">Nenhuma foto cadastrada ainda.</span>
                 )}
+                {pode("pessoa:foto") && (
                 <div className="foto-acoes">
                   <label className="btn btn-secundario btn-sm">
                     {enviandoFoto ? <LoadingInline /> : temFoto ? "Trocar foto" : "Enviar foto"}
@@ -208,6 +211,7 @@ export function PessoaFormPage() {
                     </button>
                   )}
                 </div>
+                )}
               </div>
             ) : (
               <span className="campo-ajuda">Salve a pessoa primeiro para poder adicionar uma foto.</span>
@@ -328,15 +332,19 @@ export function PessoaFormPage() {
         </div>
       </form>
 
-      {emEdicao && (
+      {emEdicao && pode("pessoa:documento-visualizar") && (
         <div className="form-card">
           <h2 className="membro-detalhe-subtitulo">Documentos</h2>
 
-          <label className="btn btn-secundario btn-sm">
-            {enviandoDocumento ? <LoadingInline /> : "+ Enviar documento"}
-            <input type="file" accept=".pdf,image/jpeg,image/png,image/webp,image/gif" hidden onChange={handleUploadDocumento} disabled={enviandoDocumento} />
-          </label>
-          <p className="campo-ajuda">Formatos aceitos: PDF, JPG, JPEG, PNG, WEBP ou GIF.</p>
+          {pode("pessoa:documento-gerenciar") && (
+            <>
+              <label className="btn btn-secundario btn-sm">
+                {enviandoDocumento ? <LoadingInline /> : "+ Enviar documento"}
+                <input type="file" accept=".pdf,image/jpeg,image/png,image/webp,image/gif" hidden onChange={handleUploadDocumento} disabled={enviandoDocumento} />
+              </label>
+              <p className="campo-ajuda">Formatos aceitos: PDF, JPG, JPEG, PNG, WEBP ou GIF.</p>
+            </>
+          )}
 
           {documentos.length === 0 ? (
             <div className="tabela-vazia">
@@ -365,14 +373,16 @@ export function PessoaFormPage() {
                         <button type="button" className="btn btn-secundario btn-sm btn-icone" title="Baixar" onClick={() => handleBaixarDocumento(documento)}>
                           ⬇
                         </button>{" "}
-                        <button
-                          type="button"
-                          className="btn btn-perigo btn-sm btn-icone"
-                          title="Excluir"
-                          onClick={() => setDocumentoParaExcluir(documento)}
-                        >
-                          🗑
-                        </button>
+                        {pode("pessoa:documento-gerenciar") && (
+                          <button
+                            type="button"
+                            className="btn btn-perigo btn-sm btn-icone"
+                            title="Excluir"
+                            onClick={() => setDocumentoParaExcluir(documento)}
+                          >
+                            🗑
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}

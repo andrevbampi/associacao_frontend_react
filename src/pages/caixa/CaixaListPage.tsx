@@ -9,8 +9,10 @@ import { caixaService } from "../../services/caixaService";
 import { extrairMensagemErro } from "../../services/api";
 import { useToast } from "../../context/ToastContext";
 import type { Caixa } from "../../types/caixa";
+import { useAuth } from "../../context/AuthContext";
 
 export function CaixaListPage() {
+  const { pode } = useAuth();
   const { showToast } = useToast();
   const [caixas, setCaixas] = useState<Caixa[]>([]);
   const [carregando, setCarregando] = useState(true);
@@ -51,7 +53,7 @@ export function CaixaListPage() {
 
   return (
     <div>
-      <PageHeader titulo="Caixas" subtitulo="Caixas usados para registrar entradas e saídas financeiras." acaoLink="/caixas/novo" acaoTexto="Novo caixa" />
+      <PageHeader titulo="Caixas" subtitulo="Caixas usados para registrar entradas e saídas financeiras." acaoLink={pode("caixa:criar") ? "/caixas/novo" : undefined} acaoTexto="Novo caixa" />
 
       {erro && <Alert mensagem={erro} />}
 
@@ -74,10 +76,10 @@ export function CaixaListPage() {
               className: "col-acoes",
               render: (item) => (
                 <>
-                  <Link to={`/caixas/${item.id}/editar`} className="btn btn-secundario btn-sm btn-icone" title="Editar" aria-label={`Editar ${item.nome}`}>
+                  {pode("caixa:editar") && (<Link to={`/caixas/${item.id}/editar`} className="btn btn-secundario btn-sm btn-icone" title="Editar" aria-label={`Editar ${item.nome}`}>
                     ✎
-                  </Link>{" "}
-                  <button
+                  </Link>)}{" "}
+                  {pode("caixa:excluir") && (<button
                     type="button"
                     className="btn btn-perigo btn-sm btn-icone"
                     title="Excluir"
@@ -85,7 +87,7 @@ export function CaixaListPage() {
                     onClick={() => setParaExcluir(item)}
                   >
                     🗑
-                  </button>
+                  </button>)}
                 </>
               ),
             },

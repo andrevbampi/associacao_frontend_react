@@ -10,34 +10,36 @@ import "./Layout.css";
 
 const LINKS = [
   { to: "/", label: "Início", fim: true, icone: "🏠" },
-  { to: "/comandas", label: "Comandas", icone: "🧾" },
-  { to: "/estoque", label: "Estoque", icone: "📦" },
-  { to: "/financeiro", label: "Financeiro", icone: "💰" },
+  { to: "/comandas", label: "Comandas", icone: "🧾", permissao: "comanda:visualizar" },
+  { to: "/estoque", label: "Estoque", icone: "📦", permissao: "estoque:visualizar" },
+  { to: "/financeiro", label: "Financeiro", icone: "💰", permissao: "financeiro:visualizar" },
 ];
 
 const LINKS_RELATORIOS = [
-  { to: "/relatorios/consumo-produtos", label: "Consumo de Produtos", icone: "📊" },
-  { to: "/relatorios/livro-caixa", label: "Livro Caixa", icone: "📒" },
+  { to: "/relatorios/consumo-produtos", label: "Consumo de Produtos", icone: "📊", permissao: "relatorio:consumo-produtos" },
+  { to: "/relatorios/livro-caixa", label: "Livro Caixa", icone: "📒", permissao: "relatorio:livro-caixa" },
 ];
 
 // Entidades que a associação gerencia no dia a dia.
 const LINKS_CADASTROS = [
-  { to: "/pessoas", label: "Pessoas", icone: "👤" },
-  { to: "/usuarios", label: "Usuários", icone: "🔑" },
-  { to: "/membros", label: "Membros", icone: "🪪" },
-  { to: "/produtos", label: "Produtos", icone: "🛒" },
-  { to: "/atas", label: "Atas", icone: "📄" },
+  { to: "/pessoas", label: "Pessoas", icone: "👤", permissao: "pessoa:visualizar" },
+  { to: "/usuarios", label: "Usuários", icone: "🔑", permissao: "usuario:visualizar" },
+  { to: "/membros", label: "Membros", icone: "🪪", permissao: "membro:visualizar" },
+  { to: "/produtos", label: "Produtos", icone: "🛒", permissao: "produto:visualizar" },
+  { to: "/atas", label: "Atas", icone: "📄", permissao: "ata:visualizar" },
 ];
 
 // Tabelas de apoio e configuração — mexidas raramente, separadas dos
 // cadastros do dia a dia para não misturar as duas coisas numa lista só.
 const LINKS_CONFIGURACOES = [
-  { to: "/status-membro", label: "Status de Membro", icone: "🏷️" },
-  { to: "/tipos-evento", label: "Tipos de Evento", icone: "📌" },
-  { to: "/categorias-produto", label: "Categorias de Produto", icone: "📁" },
-  { to: "/categorias-financeiras", label: "Categorias Financeiras", icone: "🏦" },
-  { to: "/caixas", label: "Caixas", icone: "🗄️" },
-  { to: "/parametros", label: "Parâmetros do Sistema", icone: "⚙️" },
+  { to: "/status-membro", label: "Status de Membro", icone: "🏷️", permissao: "status-membro:visualizar" },
+  { to: "/tipos-evento", label: "Tipos de Evento", icone: "📌", permissao: "tipo-evento:visualizar" },
+  { to: "/categorias-produto", label: "Categorias de Produto", icone: "📁", permissao: "categoria-produto:visualizar" },
+  { to: "/categorias-financeiras", label: "Categorias Financeiras", icone: "🏦", permissao: "categoria-financeira:visualizar" },
+  { to: "/caixas", label: "Caixas", icone: "🗄️", permissao: "caixa:visualizar" },
+  { to: "/parametros", label: "Parâmetros do Sistema", icone: "⚙️", permissao: "parametro:visualizar" },
+  { to: "/grupos", label: "Grupos de Acesso", icone: "🛡️", permissao: "grupo:visualizar" },
+  { to: "/auditoria-acesso", label: "Auditoria de Acesso", icone: "🕵️", permissao: "auditoria:visualizar" },
 ];
 
 const SECOES_MENU = [
@@ -50,6 +52,9 @@ interface LinkMenu {
   to: string;
   label: string;
   icone: string;
+  /** Permissão necessária para o item aparecer no menu. */
+  permissao: string;
+  fim?: boolean;
 }
 
 function SecaoMenu({ titulo, links, onNavegar }: { titulo: string; links: LinkMenu[]; onNavegar: () => void }) {
@@ -74,7 +79,7 @@ function SecaoMenu({ titulo, links, onNavegar }: { titulo: string; links: LinkMe
 
 export function Layout() {
   const [menuAberto, setMenuAberto] = useState(false);
-  const { usuario, logout } = useAuth();
+  const { usuario, logout, pode } = useAuth();
   const { showToast } = useToast();
   const { nomeAssociacao, logoUrl } = useParametros();
   const { tema, alternarTema } = useTheme();
@@ -121,7 +126,7 @@ export function Layout() {
             <span>{nomeAssociacao}</span>
           </div>
           <ul className="sidebar-lista">
-            {LINKS.map((link) => (
+            {LINKS.filter((link) => link.to === "/" || pode(link.permissao ?? "")).map((link) => (
               <li key={link.to}>
                 <NavLink
                   to={link.to}
@@ -135,9 +140,11 @@ export function Layout() {
               </li>
             ))}
 
-            {SECOES_MENU.map((secao) => (
-              <SecaoMenu key={secao.titulo} titulo={secao.titulo} links={secao.links} onNavegar={() => setMenuAberto(false)} />
-            ))}
+            {SECOES_MENU.map((secao) => ({ ...secao, links: secao.links.filter((link) => pode(link.permissao)) }))
+              .filter((secao) => secao.links.length > 0)
+              .map((secao) => (
+                <SecaoMenu key={secao.titulo} titulo={secao.titulo} links={secao.links} onNavegar={() => setMenuAberto(false)} />
+              ))}
           </ul>
 
           <div className="sidebar-rodape">

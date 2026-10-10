@@ -9,8 +9,10 @@ import { categoriaProdutoService } from "../../services/categoriaProdutoService"
 import { extrairMensagemErro } from "../../services/api";
 import { useToast } from "../../context/ToastContext";
 import type { CategoriaProduto } from "../../types/categoriaProduto";
+import { useAuth } from "../../context/AuthContext";
 
 export function CategoriaProdutoListPage() {
+  const { pode } = useAuth();
   const { showToast } = useToast();
   const [categorias, setCategorias] = useState<CategoriaProduto[]>([]);
   const [carregando, setCarregando] = useState(true);
@@ -51,7 +53,7 @@ export function CategoriaProdutoListPage() {
 
   return (
     <div>
-      <PageHeader titulo="Categorias de Produto" subtitulo="Agrupam os produtos vendidos no bar/caixa." acaoLink="/categorias-produto/nova" acaoTexto="Nova categoria" />
+      <PageHeader titulo="Categorias de Produto" subtitulo="Agrupam os produtos vendidos no bar/caixa." acaoLink={pode("categoria-produto:criar") ? "/categorias-produto/nova" : undefined} acaoTexto="Nova categoria" />
 
       {erro && <Alert mensagem={erro} />}
 
@@ -69,10 +71,10 @@ export function CategoriaProdutoListPage() {
               className: "col-acoes",
               render: (item) => (
                 <>
-                  <Link to={`/categorias-produto/${item.id}/editar`} className="btn btn-secundario btn-sm btn-icone" title="Editar" aria-label={`Editar ${item.descricao}`}>
+                  {pode("categoria-produto:editar") && (<Link to={`/categorias-produto/${item.id}/editar`} className="btn btn-secundario btn-sm btn-icone" title="Editar" aria-label={`Editar ${item.descricao}`}>
                     ✎
-                  </Link>{" "}
-                  <button
+                  </Link>)}{" "}
+                  {pode("categoria-produto:excluir") && (<button
                     type="button"
                     className="btn btn-perigo btn-sm btn-icone"
                     title="Excluir"
@@ -80,7 +82,7 @@ export function CategoriaProdutoListPage() {
                     onClick={() => setParaExcluir(item)}
                   >
                     🗑
-                  </button>
+                  </button>)}
                 </>
               ),
             },

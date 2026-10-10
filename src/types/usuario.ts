@@ -5,6 +5,8 @@ export interface UsuarioResponse {
   login: string;
   pessoa: Pessoa;
   ativo: boolean;
+  /** Só vem preenchido no login e em /auth/me (permissões efetivas da sessão). */
+  permissoes?: string[];
 }
 
 export interface UsuarioRequest {
