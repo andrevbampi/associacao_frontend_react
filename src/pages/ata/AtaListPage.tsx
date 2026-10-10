@@ -10,8 +10,10 @@ import { extrairMensagemErro } from "../../services/api";
 import { useToast } from "../../context/ToastContext";
 import type { AtaResponse } from "../../types/ata";
 import { formatarData, formatarDataHora } from "../../utils/formatters";
+import { useAuth } from "../../context/AuthContext";
 
 export function AtaListPage() {
+  const { pode } = useAuth();
   const { showToast } = useToast();
   const [atas, setAtas] = useState<AtaResponse[]>([]);
   const [carregando, setCarregando] = useState(true);
@@ -52,7 +54,7 @@ export function AtaListPage() {
 
   return (
     <div>
-      <PageHeader titulo="Atas" subtitulo="Atas de reunião, com documentos anexados." acaoLink="/atas/nova" acaoTexto="Nova ata" />
+      <PageHeader titulo="Atas" subtitulo="Atas de reunião, com documentos anexados." acaoLink={pode("ata:criar") ? "/atas/nova" : undefined} acaoTexto="Nova ata" />
 
       {erro && <Alert mensagem={erro} />}
 
@@ -73,10 +75,10 @@ export function AtaListPage() {
               className: "col-acoes",
               render: (item) => (
                 <>
-                  <Link to={`/atas/${item.id}/editar`} className="btn btn-secundario btn-sm btn-icone" title="Editar" aria-label={`Editar ata ${item.id}`}>
+                  {pode("ata:editar") && (<Link to={`/atas/${item.id}/editar`} className="btn btn-secundario btn-sm btn-icone" title="Editar" aria-label={`Editar ata ${item.id}`}>
                     ✎
-                  </Link>{" "}
-                  <button
+                  </Link>)}{" "}
+                  {pode("ata:excluir") && (<button
                     type="button"
                     className="btn btn-perigo btn-sm btn-icone"
                     title="Excluir"
@@ -84,7 +86,7 @@ export function AtaListPage() {
                     onClick={() => setParaExcluir(item)}
                   >
                     🗑
-                  </button>
+                  </button>)}
                 </>
               ),
             },

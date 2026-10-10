@@ -11,8 +11,10 @@ import { extrairMensagemErro } from "../../services/api";
 import { useToast } from "../../context/ToastContext";
 import { produtoVazio, type ProdutoFormData } from "../../types/produto";
 import type { CategoriaProduto } from "../../types/categoriaProduto";
+import { useAuth } from "../../context/AuthContext";
 
 export function ProdutoFormPage() {
+  const { pode } = useAuth();
   const { id } = useParams();
   const emEdicao = Boolean(id);
   const navigate = useNavigate();
@@ -187,6 +189,7 @@ export function ProdutoFormPage() {
                 ) : (
                   <span className="campo-ajuda">Nenhuma foto cadastrada ainda.</span>
                 )}
+                {pode("produto:foto") && (
                 <div className="foto-acoes">
                   <label className="btn btn-secundario btn-sm">
                     {enviandoFoto ? <LoadingInline /> : temFoto ? "Trocar foto" : "Enviar foto"}
@@ -198,6 +201,7 @@ export function ProdutoFormPage() {
                     </button>
                   )}
                 </div>
+                )}
               </div>
             ) : (
               <span className="campo-ajuda">Salve o produto primeiro para poder adicionar uma foto.</span>

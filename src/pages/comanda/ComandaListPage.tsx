@@ -13,6 +13,7 @@ import type { ComandaResponse, StatusComanda } from "../../types/comanda";
 import type { Pessoa } from "../../types/pessoa";
 import { formatarDataHora, formatarMoeda } from "../../utils/formatters";
 import "./Comanda.css";
+import { useAuth } from "../../context/AuthContext";
 
 const FILTROS: { valor: StatusComanda | "TODAS"; rotulo: string }[] = [
   { valor: "ABERTA", rotulo: "Abertas" },
@@ -28,6 +29,7 @@ const STATUS_BADGE: Record<StatusComanda, string> = {
 };
 
 export function ComandaListPage() {
+  const { pode } = useAuth();
   const [filtro, setFiltro] = useState<StatusComanda | "TODAS">("ABERTA");
   const [comandas, setComandas] = useState<ComandaResponse[]>([]);
   const [pessoas, setPessoas] = useState<Pessoa[]>([]);
@@ -85,7 +87,7 @@ export function ComandaListPage() {
 
   return (
     <div>
-      <PageHeader titulo="Comandas" subtitulo="Abertura, itens e fechamento das comandas do bar/caixa." acaoLink="/comandas/nova" acaoTexto="Nova comanda" />
+      <PageHeader titulo="Comandas" subtitulo="Abertura, itens e fechamento das comandas do bar/caixa." acaoLink={pode("comanda:abrir") ? "/comandas/nova" : undefined} acaoTexto="Nova comanda" />
 
       <div className="comanda-filtros">
         {FILTROS.map((f) => (

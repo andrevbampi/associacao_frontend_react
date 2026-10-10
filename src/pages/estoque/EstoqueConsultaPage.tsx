@@ -8,8 +8,10 @@ import { ProdutoIcone } from "../../components/common/ProdutoIcone";
 import { produtoService } from "../../services/produtoService";
 import { extrairMensagemErro } from "../../services/api";
 import type { Produto } from "../../types/produto";
+import { useAuth } from "../../context/AuthContext";
 
 export function EstoqueConsultaPage() {
+  const { pode } = useAuth();
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -42,7 +44,7 @@ export function EstoqueConsultaPage() {
       <PageHeader
         titulo="Estoque"
         subtitulo="Consulta do estoque atual dos produtos."
-        acaoLink="/estoque/nova"
+        acaoLink={pode("estoque:movimentar") ? "/estoque/nova" : undefined}
         acaoTexto="Lançar movimentação"
       />
 

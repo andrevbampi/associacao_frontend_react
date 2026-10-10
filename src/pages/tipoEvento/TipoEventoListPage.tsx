@@ -9,8 +9,10 @@ import { tipoEventoService } from "../../services/tipoEventoService";
 import { extrairMensagemErro } from "../../services/api";
 import { useToast } from "../../context/ToastContext";
 import type { TipoEvento } from "../../types/tipoEvento";
+import { useAuth } from "../../context/AuthContext";
 
 export function TipoEventoListPage() {
+  const { pode } = useAuth();
   const { showToast } = useToast();
   const [tipos, setTipos] = useState<TipoEvento[]>([]);
   const [carregando, setCarregando] = useState(true);
@@ -54,7 +56,7 @@ export function TipoEventoListPage() {
       <PageHeader
         titulo="Tipos de Evento"
         subtitulo="Categorias usadas para classificar o histórico dos membros."
-        acaoLink="/tipos-evento/novo"
+        acaoLink={pode("tipo-evento:criar") ? "/tipos-evento/novo" : undefined}
         acaoTexto="Novo tipo"
       />
 
@@ -74,10 +76,10 @@ export function TipoEventoListPage() {
               className: "col-acoes",
               render: (item) => (
                 <>
-                  <Link to={`/tipos-evento/${item.id}/editar`} className="btn btn-secundario btn-sm btn-icone" title="Editar" aria-label={`Editar ${item.descricao}`}>
+                  {pode("tipo-evento:editar") && (<Link to={`/tipos-evento/${item.id}/editar`} className="btn btn-secundario btn-sm btn-icone" title="Editar" aria-label={`Editar ${item.descricao}`}>
                     ✎
-                  </Link>{" "}
-                  <button
+                  </Link>)}{" "}
+                  {pode("tipo-evento:excluir") && (<button
                     type="button"
                     className="btn btn-perigo btn-sm btn-icone"
                     title="Excluir"
@@ -85,7 +87,7 @@ export function TipoEventoListPage() {
                     onClick={() => setParaExcluir(item)}
                   >
                     🗑
-                  </button>
+                  </button>)}
                 </>
               ),
             },

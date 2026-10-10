@@ -9,8 +9,10 @@ import { categoriaFinanceiraService } from "../../services/categoriaFinanceiraSe
 import { extrairMensagemErro } from "../../services/api";
 import { useToast } from "../../context/ToastContext";
 import { TIPO_CATEGORIA_FINANCEIRA_LABEL, type CategoriaFinanceira } from "../../types/categoriaFinanceira";
+import { useAuth } from "../../context/AuthContext";
 
 export function CategoriaFinanceiraListPage() {
+  const { pode } = useAuth();
   const { showToast } = useToast();
   const [categorias, setCategorias] = useState<CategoriaFinanceira[]>([]);
   const [carregando, setCarregando] = useState(true);
@@ -54,7 +56,7 @@ export function CategoriaFinanceiraListPage() {
       <PageHeader
         titulo="Categorias Financeiras"
         subtitulo="Agrupam os lançamentos financeiros em receitas e despesas."
-        acaoLink="/categorias-financeiras/nova"
+        acaoLink={pode("categoria-financeira:criar") ? "/categorias-financeiras/nova" : undefined}
         acaoTexto="Nova categoria"
       />
 
@@ -82,10 +84,10 @@ export function CategoriaFinanceiraListPage() {
               className: "col-acoes",
               render: (item) => (
                 <>
-                  <Link to={`/categorias-financeiras/${item.id}/editar`} className="btn btn-secundario btn-sm btn-icone" title="Editar" aria-label={`Editar ${item.descricao}`}>
+                  {pode("categoria-financeira:editar") && (<Link to={`/categorias-financeiras/${item.id}/editar`} className="btn btn-secundario btn-sm btn-icone" title="Editar" aria-label={`Editar ${item.descricao}`}>
                     ✎
-                  </Link>{" "}
-                  <button
+                  </Link>)}{" "}
+                  {pode("categoria-financeira:excluir") && (<button
                     type="button"
                     className="btn btn-perigo btn-sm btn-icone"
                     title="Excluir"
@@ -93,7 +95,7 @@ export function CategoriaFinanceiraListPage() {
                     onClick={() => setParaExcluir(item)}
                   >
                     🗑
-                  </button>
+                  </button>)}
                 </>
               ),
             },

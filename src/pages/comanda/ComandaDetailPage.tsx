@@ -18,9 +18,11 @@ import type { Caixa } from "../../types/caixa";
 import { CHAVE_CAIXA_COMANDA } from "../../types/parametroSistema";
 import { FORMAS_PAGAMENTO, FORMA_PAGAMENTO_LABEL, type FormaPagamento } from "../../types/formaPagamento";
 import { formatarDataHora, formatarMoeda } from "../../utils/formatters";
+import { useAuth } from "../../context/AuthContext";
 import "./Comanda.css";
 
 export function ComandaDetailPage() {
+  const { pode } = useAuth();
   const { id } = useParams();
   const idComanda = Number(id);
   const navigate = useNavigate();
@@ -231,7 +233,7 @@ export function ComandaDetailPage() {
         {comanda.formaPagamento && <span className="comanda-status-detalhe">via {FORMA_PAGAMENTO_LABEL[comanda.formaPagamento]}</span>}
       </div>
 
-      {aberta && (
+      {aberta && pode("comanda:lancar-item") && (
         <form className="form-card comanda-add-item" onSubmit={handleAdicionarItem}>
           <div className="comanda-add-item-linha">
             <div className="campo">
@@ -298,7 +300,7 @@ export function ComandaDetailPage() {
                   </td>
                   <td>{formatarMoeda(item.precoUnitario)}</td>
                   <td>
-                    {aberta ? (
+                    {aberta && pode("comanda:lancar-item") ? (
                       <input
                         type="number"
                         min={1}
@@ -314,6 +316,7 @@ export function ComandaDetailPage() {
                   <td>{formatarMoeda(item.subtotal)}</td>
                   {aberta && (
                     <td className="col-acoes">
+                      {pode("comanda:lancar-item") && (
                       <button
                         type="button"
                         className="btn btn-perigo btn-sm btn-icone"
@@ -323,6 +326,7 @@ export function ComandaDetailPage() {
                       >
                         🗑
                       </button>
+                      )}
                     </td>
                   )}
                 </tr>
@@ -366,15 +370,21 @@ export function ComandaDetailPage() {
           )}
 
           <div className="comanda-acoes-finais">
-            <button type="button" className="btn btn-secundario" onClick={() => setCancelarAberto(true)}>
-              Cancelar comanda
-            </button>
-            <button type="button" className="btn btn-secundario" disabled={fechando} onClick={() => handleFechar(false)}>
-              {fechando ? <LoadingInline /> : "Fechar (pagamento pendente)"}
-            </button>
-            <button type="button" className="btn btn-primario" disabled={fechando} onClick={() => handleFechar(true)}>
-              {fechando ? <LoadingInline /> : "Fechar e registrar pagamento"}
-            </button>
+            {pode("comanda:cancelar") && (
+              <button type="button" className="btn btn-secundario" onClick={() => setCancelarAberto(true)}>
+                Cancelar comanda
+              </button>
+            )}
+            {pode("comanda:fechar") && (
+              <button type="button" className="btn btn-secundario" disabled={fechando} onClick={() => handleFechar(false)}>
+                {fechando ? <LoadingInline /> : "Fechar (pagamento pendente)"}
+              </button>
+            )}
+            {pode("comanda:fechar") && pode("comanda:receber-pagamento") && (
+              <button type="button" className="btn btn-primario" disabled={fechando} onClick={() => handleFechar(true)}>
+                {fechando ? <LoadingInline /> : "Fechar e registrar pagamento"}
+              </button>
+            )}
           </div>
         </>
       )}
@@ -409,23 +419,31 @@ export function ComandaDetailPage() {
               </select>
             </div>
           )}
-          <button type="button" className="btn btn-secundario" disabled={desfazendo} onClick={handleDesfazerFechamento}>
-            {desfazendo ? <LoadingInline /> : "Desfazer fechamento"}
-          </button>
-          <button type="button" className="btn btn-primario" disabled={registrandoPagamento} onClick={handleRegistrarPagamento}>
-            {registrandoPagamento ? <LoadingInline /> : "Registrar pagamento"}
-          </button>
+          {pode("comanda:desfazer-fechamento") && (
+            <button type="button" className="btn btn-secundario" disabled={desfazendo} onClick={handleDesfazerFechamento}>
+              {desfazendo ? <LoadingInline /> : "Desfazer fechamento"}
+            </button>
+          )}
+          {pode("comanda:receber-pagamento") && (
+            <button type="button" className="btn btn-primario" disabled={registrandoPagamento} onClick={handleRegistrarPagamento}>
+              {registrandoPagamento ? <LoadingInline /> : "Registrar pagamento"}
+            </button>
+          )}
         </div>
       )}
 
       {comanda.status === "FECHADA" && comanda.pago && (
         <div className="comanda-acoes-finais">
-          <button type="button" className="btn btn-secundario" disabled={desfazendo} onClick={handleDesfazerFechamento}>
-            {desfazendo ? <LoadingInline /> : "Desfazer fechamento"}
-          </button>
-          <button type="button" className="btn btn-secundario" disabled={desfazendo} onClick={handleDesfazerPagamento}>
-            {desfazendo ? <LoadingInline /> : "Desfazer pagamento"}
-          </button>
+          {pode("comanda:desfazer-fechamento") && (
+            <button type="button" className="btn btn-secundario" disabled={desfazendo} onClick={handleDesfazerFechamento}>
+              {desfazendo ? <LoadingInline /> : "Desfazer fechamento"}
+            </button>
+          )}
+          {pode("comanda:desfazer-pagamento") && (
+            <button type="button" className="btn btn-secundario" disabled={desfazendo} onClick={handleDesfazerPagamento}>
+              {desfazendo ? <LoadingInline /> : "Desfazer pagamento"}
+            </button>
+          )}
         </div>
       )}
 

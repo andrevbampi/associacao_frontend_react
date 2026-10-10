@@ -15,8 +15,10 @@ import { ataVazia, type AtaFormData, type AtaResponse } from "../../types/ata";
 import type { DocumentoAta } from "../../types/documentoAta";
 import type { Pessoa } from "../../types/pessoa";
 import { formatarDataHora, paraDataInput } from "../../utils/formatters";
+import { useAuth } from "../../context/AuthContext";
 
 export function AtaFormPage() {
+  const { pode } = useAuth();
   const { id } = useParams();
   const emEdicao = Boolean(id);
   const navigate = useNavigate();
@@ -57,7 +59,7 @@ export function AtaFormPage() {
             titulo: ata.titulo ?? "",
             conteudo: ata.conteudo,
           });
-          setDocumentos(await documentoAtaService.listar(ata.id));
+          setDocumentos(pode("ata:documento-visualizar") ? await documentoAtaService.listar(ata.id) : []);
         }
       } catch (error) {
         setErro(extrairMensagemErro(error));
@@ -214,15 +216,19 @@ export function AtaFormPage() {
         </div>
       </form>
 
-      {emEdicao && (
+      {emEdicao && pode("ata:documento-visualizar") && (
         <div className="form-card">
           <h2 className="membro-detalhe-subtitulo">Documentos</h2>
 
-          <label className="btn btn-secundario btn-sm">
-            {enviandoDocumento ? <LoadingInline /> : "+ Enviar documento"}
-            <input type="file" accept=".pdf,image/jpeg,image/png,image/webp,image/gif" hidden onChange={handleUploadDocumento} disabled={enviandoDocumento} />
-          </label>
-          <p className="campo-ajuda">Formatos aceitos: PDF, JPG, JPEG, PNG, WEBP ou GIF.</p>
+          {pode("ata:documento-gerenciar") && (
+            <>
+              <label className="btn btn-secundario btn-sm">
+                {enviandoDocumento ? <LoadingInline /> : "+ Enviar documento"}
+                <input type="file" accept=".pdf,image/jpeg,image/png,image/webp,image/gif" hidden onChange={handleUploadDocumento} disabled={enviandoDocumento} />
+              </label>
+              <p className="campo-ajuda">Formatos aceitos: PDF, JPG, JPEG, PNG, WEBP ou GIF.</p>
+            </>
+          )}
 
           {documentos.length === 0 ? (
             <div className="tabela-vazia">
@@ -251,14 +257,16 @@ export function AtaFormPage() {
                         <button type="button" className="btn btn-secundario btn-sm btn-icone" title="Baixar" onClick={() => handleBaixarDocumento(documento)}>
                           ⬇
                         </button>{" "}
-                        <button
-                          type="button"
-                          className="btn btn-perigo btn-sm btn-icone"
-                          title="Excluir"
-                          onClick={() => setDocumentoParaExcluir(documento)}
-                        >
-                          🗑
-                        </button>
+                        {pode("ata:documento-gerenciar") && (
+                          <button
+                            type="button"
+                            className="btn btn-perigo btn-sm btn-icone"
+                            title="Excluir"
+                            onClick={() => setDocumentoParaExcluir(documento)}
+                          >
+                            🗑
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}

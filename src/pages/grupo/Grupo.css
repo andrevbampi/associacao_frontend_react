@@ -1,0 +1,64 @@
+.grupo-modulos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.grupo-modulo {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+.grupo-modulo legend {
+  font-weight: 600;
+  padding: 0 0.4rem;
+}
+
+.grupo-modulo:disabled {
+  opacity: 0.6;
+}
+
+.grupo-permissao {
+  align-items: flex-start;
+}
+
+.grupo-permissao small {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+.acesso-excecoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.acesso-excecao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.2rem 0;
+}
+
+.acesso-excecao select {
+  width: auto;
+}
+
+.acesso-excecao-permitir {
+  color: var(--color-primary-dark);
+  font-weight: 600;
+}
+
+.acesso-excecao-negar {
+  color: #c62828;
+  font-weight: 600;
+}

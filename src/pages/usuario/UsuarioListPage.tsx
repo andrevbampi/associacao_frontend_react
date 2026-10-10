@@ -10,8 +10,10 @@ import { usuarioService } from "../../services/usuarioService";
 import { extrairMensagemErro } from "../../services/api";
 import { useToast } from "../../context/ToastContext";
 import type { UsuarioResponse } from "../../types/usuario";
+import { useAuth } from "../../context/AuthContext";
 
 export function UsuarioListPage() {
+  const { pode } = useAuth();
   const { showToast } = useToast();
   const [usuarios, setUsuarios] = useState<UsuarioResponse[]>([]);
   const [carregando, setCarregando] = useState(true);
@@ -65,7 +67,7 @@ export function UsuarioListPage() {
 
   return (
     <div>
-      <PageHeader titulo="Usuários" subtitulo="Contas de acesso vinculadas a uma pessoa." acaoLink="/usuarios/novo" acaoTexto="Novo usuário" />
+      <PageHeader titulo="Usuários" subtitulo="Contas de acesso vinculadas a uma pessoa." acaoLink={pode("usuario:criar") ? "/usuarios/novo" : undefined} acaoTexto="Novo usuário" />
 
       <div className="filtros-card">
         <div className="filtros-grid">
@@ -115,10 +117,15 @@ export function UsuarioListPage() {
               className: "col-acoes",
               render: (usuario) => (
                 <>
-                  <Link to={`/usuarios/${usuario.id}/editar`} className="btn btn-secundario btn-sm btn-icone" title="Editar" aria-label={`Editar ${usuario.login}`}>
+                  {pode("usuario:gerenciar-acesso") && (
+                    <Link to={`/usuarios/${usuario.id}/acesso`} className="btn btn-secundario btn-sm btn-icone" title="Grupos e permissões" aria-label={`Acesso de ${usuario.login}`}>
+                      🛡
+                    </Link>
+                  )}{" "}
+                  {pode("usuario:editar") && (<Link to={`/usuarios/${usuario.id}/editar`} className="btn btn-secundario btn-sm btn-icone" title="Editar" aria-label={`Editar ${usuario.login}`}>
                     ✎
-                  </Link>{" "}
-                  <button
+                  </Link>)}{" "}
+                  {pode("usuario:excluir") && (<button
                     type="button"
                     className="btn btn-perigo btn-sm btn-icone"
                     title="Excluir"
@@ -126,7 +133,7 @@ export function UsuarioListPage() {
                     onClick={() => setParaExcluir(usuario)}
                   >
                     🗑
-                  </button>
+                  </button>)}
                 </>
               ),
             },
