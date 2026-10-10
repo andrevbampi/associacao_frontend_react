@@ -4,6 +4,7 @@ import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { RotaProtegida } from "./components/auth/RotaProtegida";
 import { LoginPage } from "./pages/LoginPage";
 import { Dashboard } from "./pages/Dashboard";
+import { AlterarSenhaPage } from "./pages/AlterarSenhaPage";
 import { PessoaListPage } from "./pages/pessoa/PessoaListPage";
 import { PessoaFormPage } from "./pages/pessoa/PessoaFormPage";
 import { UsuarioListPage } from "./pages/usuario/UsuarioListPage";
@@ -50,6 +51,7 @@ function App() {
       <Route element={<ProtectedRoute />}>
         <Route path="/" element={<Layout />}>
           <Route index element={<Dashboard />} />
+          <Route path="alterar-senha" element={<AlterarSenhaPage />} />
 
           <Route element={<RotaProtegida permissao="pessoa:visualizar" />}>
             <Route path="pessoas" element={<PessoaListPage />} />

@@ -193,6 +193,10 @@
   transition: background-color 0.15s ease;
 }
 
+a.sidebar-tema {
+  text-decoration: none;
+}
+
 .sidebar-tema:hover,
 .sidebar-sair:hover {
   background: rgba(255, 255, 255, 0.16);

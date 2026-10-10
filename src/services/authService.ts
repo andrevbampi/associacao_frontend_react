@@ -12,4 +12,8 @@ export const authService = {
     const { data } = await api.get<UsuarioResponse>("/auth/me");
     return data;
   },
+
+  async alterarSenha(senhaAtual: string, novaSenha: string): Promise<void> {
+    await api.put("/auth/senha", { senhaAtual, novaSenha });
+  },
 };

@@ -164,6 +164,9 @@ export function Layout() {
                 <div className="sidebar-usuario-login">@{usuario?.login}</div>
               </div>
             </div>
+            <NavLink to="/alterar-senha" className="sidebar-tema" onClick={() => setMenuAberto(false)}>
+              🔒 Alterar senha
+            </NavLink>
             <button type="button" className="sidebar-tema" onClick={alternarTema}>
               {tema === "dark" ? "☀️ Modo claro" : "🌙 Modo escuro"}
             </button>
